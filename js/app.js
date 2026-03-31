@@ -3,11 +3,32 @@
 // ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
+  initMobileMenu();
   initScrollAnimations();
   initGame();
   initRestore();
   initSlider();
 });
+
+// ============================================
+// Mobile Menu
+// ============================================
+function initMobileMenu() {
+  const btn = document.getElementById('mobile-menu-btn');
+  const menu = document.getElementById('mobile-menu');
+  if (!btn || !menu) return;
+
+  btn.addEventListener('click', () => {
+    menu.classList.toggle('hidden');
+  });
+
+  // Close menu on link click
+  menu.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      menu.classList.add('hidden');
+    });
+  });
+}
 
 // ============================================
 // Scroll Animations
