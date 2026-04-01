@@ -81,9 +81,9 @@ function initGame() {
           <video id="game-video-a" class="w-full h-full object-cover" autoplay loop muted playsinline
             src="assets/videos/${aiIsLeft ? 'ai' : 'normal'}.mp4"></video>
         </div>
-        <div class="p-4 bg-white/5 text-center">
+        <div class="p-4 bg-surface text-center">
           <span class="text-lg font-bold">Видео A</span>
-          <span class="text-white/30 text-xs block">8 сек, HEVC</span>
+          <span class="text-muted/70 text-xs block">8 сек, HEVC</span>
         </div>
       </div>
       <div class="game-card rounded-2xl overflow-hidden" data-choice="B">
@@ -91,13 +91,13 @@ function initGame() {
           <video id="game-video-b" class="w-full h-full object-cover" autoplay loop muted playsinline
             src="assets/videos/${aiIsLeft ? 'normal' : 'ai'}.mp4"></video>
         </div>
-        <div class="p-4 bg-white/5 text-center">
+        <div class="p-4 bg-surface text-center">
           <span class="text-lg font-bold">Видео B</span>
-          <span class="text-white/30 text-xs block">8 сек, HEVC</span>
+          <span class="text-muted/70 text-xs block">8 сек, HEVC</span>
         </div>
       </div>
     </div>
-    <p class="text-center text-white/40 mt-6 text-sm">Какое видео выглядит лучше? Нажми на него.</p>
+    <p class="text-center text-muted mt-6 text-sm">Какое видео выглядит лучше? Нажми на него.</p>
     <div id="game-result" class="mt-8 text-center hidden"></div>
   `;
 
@@ -126,39 +126,39 @@ function initGame() {
 
       const statsBlock = `
         <div class="mt-4 grid grid-cols-2 gap-4">
-          <div class="bg-black/30 rounded-xl p-4">
-            <p class="text-sm text-white/40">Обычный HEVC</p>
+          <div class="bg-surface rounded-xl p-4">
+            <p class="text-sm text-muted">Обычный HEVC</p>
             <p class="text-2xl font-bold text-red-400">12.4 MB</p>
-            <p class="text-xs text-white/30">1500 kbps, VMAF 72</p>
-            <p class="text-xs text-white/20 mt-1">CDN: ~225 ₽/час на 10K</p>
+            <p class="text-xs text-muted/70">1500 kbps, VMAF 72</p>
+            <p class="text-xs text-muted/50 mt-1">CDN: ~225 ₽/час на 10K</p>
           </div>
-          <div class="bg-black/30 rounded-xl p-4">
-            <p class="text-sm text-white/40">AI + HEVC</p>
+          <div class="bg-surface rounded-xl p-4">
+            <p class="text-sm text-muted">AI + HEVC</p>
             <p class="text-2xl font-bold text-green-400">2.1 MB</p>
             <p class="text-xs text-green-400/60">300 kbps, VMAF 89</p>
             <p class="text-xs text-green-400/40 mt-1">CDN: ~45 ₽/час на 10K</p>
           </div>
         </div>
-        <div class="mt-4 bg-white/5 rounded-xl p-4 text-left">
-          <p class="text-xs text-white/40 mb-2">Исследование Runway (The Turing Reel, 2025):</p>
-          <p class="text-sm text-white/70">Из <strong>1043 человек</strong> только <strong class="text-purple-400">9.5%</strong> смогли отличить AI-обработанное видео от оригинала. Средняя точность — <strong>57.1%</strong> (чуть лучше случайного угадывания).</p>
-          <a href="https://runwayml.com/research/theturingreel" target="_blank" class="text-purple-400 text-xs hover:underline mt-2 inline-block">runwayml.com/research/theturingreel</a>
+        <div class="mt-4 bg-surface rounded-xl p-4 text-left">
+          <p class="text-xs text-muted mb-2">Исследование Runway (The Turing Reel, 2025):</p>
+          <p class="text-sm text-[#c9d1d9]">Из <strong>1043 человек</strong> только <strong class="text-accent">9.5%</strong> смогли отличить AI-обработанное видео от оригинала. Средняя точность — <strong>57.1%</strong> (чуть лучше случайного угадывания).</p>
+          <a href="https://runwayml.com/research/theturingreel" target="_blank" class="text-accent text-xs hover:underline mt-2 inline-block">runwayml.com/research/theturingreel</a>
         </div>
       `;
 
       if (isCorrect) {
         result.innerHTML = `
-          <div class="bg-green-500/10 border border-green-500/30 rounded-2xl p-6">
-            <p class="text-2xl font-bold text-green-400 mb-2">Верно!</p>
-            <p class="text-white/60">Вы в числе 9.5% людей, которые отличают AI. Но посмотрите на размеры:</p>
+          <div class="bg-green/5 border border-green/20 rounded-lg p-6">
+            <p class="text-xl font-bold text-green mb-2">Верно.</p>
+            <p class="text-muted text-sm">Вы в меньшинстве — только <strong class="text-green text-lg">9.5%</strong> людей отличают AI-обработку от оригинала. Но посмотрите на размер файла:</p>
             ${statsBlock}
           </div>
         `;
       } else {
         result.innerHTML = `
-          <div class="bg-purple-500/10 border border-purple-500/30 rounded-2xl p-6">
-            <p class="text-2xl font-bold text-purple-400 mb-2">Вот это поворот!</p>
-            <p class="text-white/60">Видео <strong>${aiChoice}</strong> — это AI-версия. Вы, как и 90% людей, не заметили разницы.</p>
+          <div class="bg-surface border border-border rounded-lg p-6">
+            <p class="text-xl font-bold text-accent mb-2">Не угадали.</p>
+            <p class="text-muted text-sm">Видео <strong class="text-[#c9d1d9]">${aiChoice}</strong> обработано нейросетью. <strong class="text-amber text-2xl">90%</strong> людей не замечают разницы — вы в большинстве.</p>
             ${statsBlock}
           </div>
         `;
@@ -184,48 +184,48 @@ function initRestore() {
 
         <!-- Live stats overlay -->
         <div id="restore-live-stats" class="absolute top-4 left-4 right-4 flex justify-between pointer-events-none">
-          <div class="bg-black/70 backdrop-blur-md rounded-lg px-3 py-1.5 text-xs">
-            <span class="text-white/40">Битрейт:</span>
+          <div class="bg-bg/90 backdrop-blur-md rounded-lg px-3 py-1.5 text-xs">
+            <span class="text-muted">Битрейт:</span>
             <span id="restore-bitrate" class="font-bold text-red-400">150 kbps</span>
           </div>
-          <div class="bg-black/70 backdrop-blur-md rounded-lg px-3 py-1.5 text-xs">
-            <span class="text-white/40">VMAF:</span>
+          <div class="bg-bg/90 backdrop-blur-md rounded-lg px-3 py-1.5 text-xs">
+            <span class="text-muted">VMAF:</span>
             <span id="restore-vmaf-live" class="font-bold text-red-400">23</span>
           </div>
-          <div class="bg-black/70 backdrop-blur-md rounded-lg px-3 py-1.5 text-xs">
-            <span class="text-white/40">Размер:</span>
-            <span id="restore-size" class="font-bold text-white/70">0.4 MB</span>
+          <div class="bg-bg/90 backdrop-blur-md rounded-lg px-3 py-1.5 text-xs">
+            <span class="text-muted">Размер:</span>
+            <span id="restore-size" class="font-bold text-[#c9d1d9]">0.4 MB</span>
           </div>
         </div>
       </div>
 
       <!-- Processing bar -->
       <div id="restore-progress" class="mt-4 h-1.5 bg-white/10 rounded-full overflow-hidden hidden">
-        <div id="restore-progress-bar" class="h-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-200" style="width: 0%"></div>
+        <div id="restore-progress-bar" class="h-full rounded-full bg-accent transition-all duration-200" style="width: 0%"></div>
       </div>
 
       <!-- Button -->
       <div class="text-center mt-8">
-        <button id="restore-btn" class="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-lg font-bold hover:scale-105 transition-transform pulse-glow">
+        <button id="restore-btn" class="px-8 py-4 bg-accent/10 border border-accent/30 text-accent hover:bg-accent/20 rounded-full text-lg font-bold hover:scale-105 transition-transform pulse-glow">
           Восстановить с AI
         </button>
-        <p id="restore-status" class="text-white/30 text-sm mt-3">Нажми и смотри магию</p>
+        <p id="restore-status" class="text-muted/70 text-sm mt-3">Нажми и смотри магию</p>
       </div>
 
       <!-- Real AI result comparison -->
       <div id="restore-ai-compare" class="mt-6 hidden">
-        <p class="text-sm text-white/40 mb-3 text-center">Реальная обработка нейросетью (ESRGAN) одного кадра:</p>
+        <p class="text-sm text-muted mb-3 text-center">Реальная обработка нейросетью (ESRGAN) одного кадра:</p>
         <div class="grid grid-cols-2 gap-4">
           <div class="text-center">
             <p class="text-xs text-red-400/60 mb-1">До (150 kbps)</p>
-            <canvas id="restore-frame-before" class="w-full rounded-xl border border-red-500/30"></canvas>
+            <canvas id="restore-frame-before" class="w-full rounded-xl border border-red/30"></canvas>
           </div>
           <div class="text-center">
             <p class="text-xs text-green-400/60 mb-1">После ESRGAN</p>
-            <canvas id="restore-frame-after" class="w-full rounded-xl border border-green-500/30"></canvas>
+            <canvas id="restore-frame-after" class="w-full rounded-xl border border-green/30"></canvas>
           </div>
         </div>
-        <div id="restore-ai-metrics" class="mt-3 text-center text-sm text-white/40"></div>
+        <div id="restore-ai-metrics" class="mt-3 text-center text-sm text-muted"></div>
       </div>
 
       <!-- After restore: savings card -->
@@ -326,10 +326,23 @@ function initRestore() {
               const sec = ((performance.now() - t0) / 1000).toFixed(1);
               const beforeData = getPixels(frameBefore);
               const afterData = getPixels(frameAfter);
-              const sBefore = calcSharpness(beforeData).toFixed(1);
-              const sAfter = calcSharpness(afterData).toFixed(1);
-              const imp = (((sAfter - sBefore) / sBefore) * 100).toFixed(0);
-              aiMetrics.innerHTML = 'ESRGAN: <strong class="text-green-400">' + sec + 's</strong> | Резкость: ' + sBefore + ' → <strong class="text-green-400">' + sAfter + '</strong> (+' + imp + '%)';
+              const sBefore = calcSharpness(beforeData);
+              const sAfter = calcSharpness(afterData);
+              const cBefore = calcContrast(beforeData);
+              const cAfter = calcContrast(afterData);
+              const dBefore = calcDetail(beforeData);
+              const dAfter = calcDetail(afterData);
+              const sharpImp = (((sAfter - sBefore) / sBefore) * 100).toFixed(0);
+              const contrastImp = (((cAfter - cBefore) / cBefore) * 100).toFixed(0);
+              const detailImp = (((dAfter - dBefore) / dBefore) * 100).toFixed(0);
+              aiMetrics.innerHTML = `
+                <div class="bg-surface border border-border rounded-lg p-4 text-xs text-left">
+                  <div class="flex justify-between mb-1"><span class="text-muted">inference time</span><span class="text-green">${sec}s</span></div>
+                  <div class="flex justify-between mb-1"><span class="text-muted">sharpness (laplacian)</span><span>${sBefore.toFixed(1)} → <strong class="${sAfter > sBefore ? 'text-green' : 'text-muted'}">${sAfter.toFixed(1)}</strong> (${sharpImp > 0 ? '+' : ''}${sharpImp}%)</span></div>
+                  <div class="flex justify-between mb-1"><span class="text-muted">contrast (σ)</span><span>${cBefore.toFixed(1)} → <strong class="${cAfter > cBefore ? 'text-green' : 'text-muted'}">${cAfter.toFixed(1)}</strong> (${contrastImp > 0 ? '+' : ''}${contrastImp}%)</span></div>
+                  <div class="flex justify-between"><span class="text-muted">detail (HF energy)</span><span>${dBefore.toFixed(1)} → <strong class="${dAfter > dBefore ? 'text-green' : 'text-muted'}">${dAfter.toFixed(1)}</strong> (${detailImp > 0 ? '+' : ''}${detailImp}%)</span></div>
+                </div>
+              `;
             };
             tmpImg.src = result;
           });
@@ -339,23 +352,23 @@ function initRestore() {
         savings.classList.remove('hidden');
         savings.classList.add('fade-in-up');
         savings.innerHTML = `
-          <div class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-2xl p-6">
+          <div class="bg-surface border border-border rounded-2xl p-6">
             <h4 class="font-bold text-lg mb-4 text-center">Что это значит в деньгах?</h4>
             <div class="grid grid-cols-3 gap-4 text-center">
               <div>
                 <p class="text-3xl font-black text-red-400" id="save-before">0</p>
-                <p class="text-xs text-white/40 mt-1">Без AI (GB/час)</p>
+                <p class="text-xs text-muted mt-1">Без AI (GB/час)</p>
               </div>
               <div>
                 <p class="text-3xl font-black text-green-400" id="save-after">0</p>
-                <p class="text-xs text-white/40 mt-1">С AI (GB/час)</p>
+                <p class="text-xs text-muted mt-1">С AI (GB/час)</p>
               </div>
               <div>
-                <p class="text-3xl font-black text-purple-400" id="save-money">0 ₽</p>
-                <p class="text-xs text-white/40 mt-1">Экономия/мес*</p>
+                <p class="text-3xl font-black text-accent" id="save-money">0 ₽</p>
+                <p class="text-xs text-muted mt-1">Экономия/мес*</p>
               </div>
             </div>
-            <p class="text-xs text-white/20 mt-4 text-center">
+            <p class="text-xs text-muted/50 mt-4 text-center">
               *При 10K зрителей, CDN 3 ₽/GB (Selectel/VK Cloud, 2025)
             </p>
           </div>
@@ -395,9 +408,9 @@ function initSlider() {
   container.innerHTML = `
     <!-- AI Toggle -->
     <div class="flex items-center justify-center gap-4 mb-8">
-      <span id="label-no-ai" class="text-white/50 font-medium">Без AI</span>
+      <span id="label-no-ai" class="text-muted font-medium">Без AI</span>
       <div id="ai-toggle" class="toggle-switch"></div>
-      <span id="label-ai" class="text-purple-400 font-semibold opacity-50">С AI</span>
+      <span id="label-ai" class="text-accent font-semibold opacity-50">С AI</span>
     </div>
 
     <!-- Video -->
@@ -408,16 +421,16 @@ function initSlider() {
 
       <!-- Quality overlay -->
       <div class="absolute bottom-4 left-4 right-4 flex justify-between gap-2">
-        <div class="bg-black/70 backdrop-blur-md rounded-xl px-3 py-2 flex-1 text-center">
-          <span class="text-xs text-white/40 block">Битрейт</span>
+        <div class="bg-bg/90 backdrop-blur-md rounded-xl px-3 py-2 flex-1 text-center">
+          <span class="text-xs text-muted block">Битрейт</span>
           <p id="display-bitrate" class="text-base sm:text-lg font-bold">150 kbps</p>
         </div>
-        <div class="bg-black/70 backdrop-blur-md rounded-xl px-3 py-2 flex-1 text-center">
-          <span class="text-xs text-white/40 block">Размер (10с)</span>
+        <div class="bg-bg/90 backdrop-blur-md rounded-xl px-3 py-2 flex-1 text-center">
+          <span class="text-xs text-muted block">Размер (10с)</span>
           <p id="display-size" class="text-base sm:text-lg font-bold">0.8 MB</p>
         </div>
-        <div class="bg-black/70 backdrop-blur-md rounded-xl px-3 py-2 flex-1 text-center">
-          <span class="text-xs text-white/40 block">VMAF</span>
+        <div class="bg-bg/90 backdrop-blur-md rounded-xl px-3 py-2 flex-1 text-center">
+          <span class="text-xs text-muted block">VMAF</span>
           <p id="display-quality" class="text-base sm:text-lg font-bold text-red-400">32</p>
         </div>
       </div>
@@ -426,7 +439,7 @@ function initSlider() {
     <!-- Slider -->
     <div class="mt-8 px-2">
       <input id="bitrate-range" type="range" min="0" max="6" value="0" step="1" class="bitrate-slider">
-      <div class="flex justify-between text-xs text-white/30 mt-2 px-1">
+      <div class="flex justify-between text-xs text-muted/70 mt-2 px-1">
         <span>150</span>
         <span>300</span>
         <span>500</span>
@@ -435,71 +448,71 @@ function initSlider() {
         <span>3000</span>
         <span>5000</span>
       </div>
-      <p class="text-center text-white/20 text-xs mt-1">kbps</p>
+      <p class="text-center text-muted/50 text-xs mt-1">kbps</p>
     </div>
 
     <!-- Quality bar -->
-    <div class="mt-6 bg-white/5 rounded-2xl p-5">
+    <div class="mt-6 bg-surface rounded-2xl p-5">
       <div class="flex items-center justify-between mb-2">
-        <span class="text-sm text-white/40">Качество (VMAF)</span>
+        <span class="text-sm text-muted">Качество (VMAF)</span>
         <span id="quality-percent" class="text-sm font-bold text-red-400">32</span>
       </div>
       <div class="h-3 bg-white/10 rounded-full overflow-hidden">
         <div id="quality-bar" class="h-full rounded-full transition-all duration-500 bg-gradient-to-r from-red-500 via-yellow-500 to-green-500" style="width: 32%"></div>
       </div>
-      <p id="quality-hint" class="text-xs text-white/20 mt-2 text-center">Включи AI и сравни разницу</p>
+      <p id="quality-hint" class="text-xs text-muted/50 mt-2 text-center">Включи AI и сравни разницу</p>
     </div>
 
     <!-- MONEY SAVINGS CARD -->
-    <div class="mt-6 bg-white/5 rounded-2xl p-5 border border-white/10">
-      <h4 class="text-sm font-bold text-white/60 mb-4 text-center">Экономия для стриминговой платформы</h4>
+    <div class="mt-6 bg-surface rounded-2xl p-5 border border-border">
+      <h4 class="text-sm font-bold text-muted mb-4 text-center">Экономия для стриминговой платформы</h4>
 
       <!-- Viewers selector -->
       <div class="flex items-center justify-center gap-3 mb-4">
-        <span class="text-xs text-white/40">Зрители:</span>
-        <button class="viewer-btn px-3 py-1 rounded-full text-xs border border-purple-400 text-purple-400 font-bold" data-viewers="10000">10K</button>
-        <button class="viewer-btn px-3 py-1 rounded-full text-xs border border-white/20 text-white/50 hover:border-purple-400 hover:text-purple-400 transition" data-viewers="100000">100K</button>
-        <button class="viewer-btn px-3 py-1 rounded-full text-xs border border-white/20 text-white/50 hover:border-purple-400 hover:text-purple-400 transition" data-viewers="1000000">1M</button>
-        <button class="viewer-btn px-3 py-1 rounded-full text-xs border border-white/20 text-white/50 hover:border-purple-400 hover:text-purple-400 transition" data-viewers="10000000">10M</button>
+        <span class="text-xs text-muted">Зрители:</span>
+        <button class="viewer-btn px-3 py-1 rounded-full text-xs border border-accent text-accent font-bold" data-viewers="10000">10K</button>
+        <button class="viewer-btn px-3 py-1 rounded-full text-xs border border-border text-muted hover:border-accent/60 hover:text-accent transition" data-viewers="100000">100K</button>
+        <button class="viewer-btn px-3 py-1 rounded-full text-xs border border-border text-muted hover:border-accent/60 hover:text-accent transition" data-viewers="1000000">1M</button>
+        <button class="viewer-btn px-3 py-1 rounded-full text-xs border border-border text-muted hover:border-accent/60 hover:text-accent transition" data-viewers="10000000">10M</button>
       </div>
 
       <div class="grid grid-cols-3 gap-3 text-center">
-        <div class="bg-black/30 rounded-xl p-3">
-          <p class="text-xs text-white/40">CDN без AI</p>
+        <div class="bg-surface rounded-xl p-3">
+          <p class="text-xs text-muted">CDN без AI</p>
           <p id="cost-normal" class="text-xl font-black text-red-400">8 100 ₽</p>
-          <p class="text-xs text-white/20">/месяц</p>
+          <p class="text-xs text-muted/50">/месяц</p>
         </div>
-        <div class="bg-black/30 rounded-xl p-3">
-          <p class="text-xs text-white/40">CDN с AI</p>
+        <div class="bg-surface rounded-xl p-3">
+          <p class="text-xs text-muted">CDN с AI</p>
           <p id="cost-ai" class="text-xl font-black text-green-400">1 900 ₽</p>
-          <p class="text-xs text-white/20">/месяц</p>
+          <p class="text-xs text-muted/50">/месяц</p>
         </div>
-        <div class="bg-black/30 rounded-xl p-3 border border-purple-500/30">
-          <p class="text-xs text-white/40">Экономия</p>
-          <p id="cost-savings" class="text-xl font-black text-purple-400">6 200 ₽</p>
-          <p class="text-xs text-purple-400/60">/месяц</p>
+        <div class="bg-surface rounded-xl p-3 border border-accent/30">
+          <p class="text-xs text-muted">Экономия</p>
+          <p id="cost-savings" class="text-xl font-black text-accent">6 200 ₽</p>
+          <p class="text-xs text-accent/60">/месяц</p>
         </div>
       </div>
-      <p class="text-xs text-white/15 mt-3 text-center">CDN 1.5 ₽/GB, 1 час просмотра/зритель/день. Данные: Selectel, SimaBit 2025</p>
+      <p class="text-xs text-muted/40 mt-3 text-center">CDN 1.5 ₽/GB, 1 час просмотра/зритель/день. Данные: Selectel, SimaBit 2025</p>
     </div>
 
     <!-- Real AI frame processing -->
     <div class="mt-6 text-center">
-      <button id="slider-ai-btn" class="px-6 py-3 bg-white/10 border border-purple-400/50 rounded-full font-bold hover:bg-purple-500/20 transition">
+      <button id="slider-ai-btn" class="px-6 py-3 bg-white/10 border border-accent/50 rounded-full font-bold hover:bg-accent/10 transition">
         Обработать текущий кадр нейросетью
       </button>
       <div id="slider-ai-compare" class="mt-4 hidden">
         <div class="grid grid-cols-2 gap-4">
           <div class="text-center">
             <p class="text-xs text-red-400/60 mb-1">Текущий кадр</p>
-            <canvas id="slider-frame-before" class="w-full rounded-xl border border-red-500/30"></canvas>
+            <canvas id="slider-frame-before" class="w-full rounded-xl border border-red/30"></canvas>
           </div>
           <div class="text-center">
             <p class="text-xs text-green-400/60 mb-1">После ESRGAN</p>
-            <canvas id="slider-frame-after" class="w-full rounded-xl border border-green-500/30"></canvas>
+            <canvas id="slider-frame-after" class="w-full rounded-xl border border-green/30"></canvas>
           </div>
         </div>
-        <p id="slider-ai-metrics" class="mt-3 text-sm text-white/40"></p>
+        <p id="slider-ai-metrics" class="mt-3 text-sm text-muted"></p>
       </div>
     </div>
   `;
@@ -530,9 +543,9 @@ function initSlider() {
   container.querySelectorAll('.viewer-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       container.querySelectorAll('.viewer-btn').forEach(b => {
-        b.className = 'viewer-btn px-3 py-1 rounded-full text-xs border border-white/20 text-white/50 hover:border-purple-400 hover:text-purple-400 transition';
+        b.className = 'viewer-btn px-3 py-1 rounded-full text-xs border border-border text-muted hover:border-accent/60 hover:text-accent transition';
       });
-      btn.className = 'viewer-btn px-3 py-1 rounded-full text-xs border border-purple-400 text-purple-400 font-bold';
+      btn.className = 'viewer-btn px-3 py-1 rounded-full text-xs border border-accent text-accent font-bold';
       viewers = parseInt(btn.dataset.viewers);
       updateSlider();
     });
@@ -605,7 +618,7 @@ function initSlider() {
     // Hint
     if (!aiEnabled && quality < 70) {
       qualityHint.textContent = 'Включи AI — качество вырастет без увеличения размера';
-      qualityHint.className = 'text-xs text-purple-400/60 mt-2 text-center';
+      qualityHint.className = 'text-xs text-accent/60 mt-2 text-center';
     } else if (aiEnabled) {
       qualityHint.textContent = `AI: +${step.qualityAI - step.qualityNormal} VMAF при том же битрейте | экономия ${formatMoney(monthlySavings)}/мес`;
       qualityHint.className = 'text-xs text-green-400/60 mt-2 text-center';
@@ -653,10 +666,23 @@ function initSlider() {
         const sec = ((performance.now() - t0) / 1000).toFixed(1);
         const beforeData = getPixels(sliderFrameBefore);
         const afterData = getPixels(sliderFrameAfter);
-        const sBefore = calcSharpness(beforeData).toFixed(1);
-        const sAfter = calcSharpness(afterData).toFixed(1);
-        const imp = (((sAfter - sBefore) / sBefore) * 100).toFixed(0);
-        sliderAiMetrics.innerHTML = 'ESRGAN: <strong class="text-green-400">' + sec + 's</strong> | Резкость: ' + sBefore + ' → <strong class="text-green-400">' + sAfter + '</strong> (+' + imp + '%)';
+        const sBefore = calcSharpness(beforeData);
+        const sAfter = calcSharpness(afterData);
+        const cBefore = calcContrast(beforeData);
+        const cAfter = calcContrast(afterData);
+        const dBefore = calcDetail(beforeData);
+        const dAfter = calcDetail(afterData);
+        const sharpImp = (((sAfter - sBefore) / sBefore) * 100).toFixed(0);
+        const contrastImp = (((cAfter - cBefore) / cBefore) * 100).toFixed(0);
+        const detailImp = (((dAfter - dBefore) / dBefore) * 100).toFixed(0);
+        sliderAiMetrics.innerHTML = `
+          <div class="bg-surface border border-border rounded-lg p-4 text-xs text-left mt-2">
+            <div class="flex justify-between mb-1"><span class="text-muted">inference time</span><span class="text-green">${sec}s</span></div>
+            <div class="flex justify-between mb-1"><span class="text-muted">sharpness (laplacian)</span><span>${sBefore.toFixed(1)} → <strong class="${sAfter > sBefore ? 'text-green' : 'text-muted'}">${sAfter.toFixed(1)}</strong> (${sharpImp > 0 ? '+' : ''}${sharpImp}%)</span></div>
+            <div class="flex justify-between mb-1"><span class="text-muted">contrast (σ)</span><span>${cBefore.toFixed(1)} → <strong class="${cAfter > cBefore ? 'text-green' : 'text-muted'}">${cAfter.toFixed(1)}</strong> (${contrastImp > 0 ? '+' : ''}${contrastImp}%)</span></div>
+            <div class="flex justify-between"><span class="text-muted">detail (HF energy)</span><span>${dBefore.toFixed(1)} → <strong class="${dAfter > dBefore ? 'text-green' : 'text-muted'}">${dAfter.toFixed(1)}</strong> (${detailImp > 0 ? '+' : ''}${detailImp}%)</span></div>
+          </div>
+        `;
         sliderAiBtn.textContent = 'Обработать ещё раз';
         sliderAiBtn.disabled = false;
       };
@@ -680,51 +706,51 @@ function initCalculator() {
     <div class="max-w-2xl mx-auto">
       <div class="grid sm:grid-cols-2 gap-6 mb-8">
         <!-- Input: Hours of video -->
-        <div class="bg-white/5 rounded-2xl p-5 border border-white/10">
-          <label class="text-sm text-white/40 block mb-2">Часов видео в месяц</label>
+        <div class="bg-surface rounded-2xl p-5 border border-border">
+          <label class="text-sm text-muted block mb-2">Часов видео в месяц</label>
           <input id="calc-hours" type="number" value="1000" min="1" max="1000000"
-            class="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-3 text-2xl font-bold text-white focus:border-purple-400 focus:outline-none transition">
-          <p class="text-xs text-white/20 mt-2">YouTube загружает 500 часов/мин</p>
+            class="w-full bg-surface border border-border rounded-xl px-4 py-3 text-2xl font-bold text-white focus:border-accent focus:outline-none transition">
+          <p class="text-xs text-muted/50 mt-2">YouTube загружает 500 часов/мин</p>
         </div>
 
         <!-- Input: Viewers -->
-        <div class="bg-white/5 rounded-2xl p-5 border border-white/10">
-          <label class="text-sm text-white/40 block mb-2">Средний просмотр одного видео</label>
+        <div class="bg-surface rounded-2xl p-5 border border-border">
+          <label class="text-sm text-muted block mb-2">Средний просмотр одного видео</label>
           <input id="calc-views" type="number" value="1000" min="1" max="100000000"
-            class="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-3 text-2xl font-bold text-white focus:border-purple-400 focus:outline-none transition">
-          <p class="text-xs text-white/20 mt-2">просмотров</p>
+            class="w-full bg-surface border border-border rounded-xl px-4 py-3 text-2xl font-bold text-white focus:border-accent focus:outline-none transition">
+          <p class="text-xs text-muted/50 mt-2">просмотров</p>
         </div>
       </div>
 
       <!-- Results -->
-      <div class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-2xl p-6">
+      <div class="bg-surface border border-border rounded-2xl p-6">
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
           <div>
-            <p class="text-xs text-white/40 mb-1">Трафик без AI</p>
+            <p class="text-xs text-muted mb-1">Трафик без AI</p>
             <p id="calc-traffic-normal" class="text-2xl font-black text-red-400">--</p>
-            <p class="text-xs text-white/20">TB/мес</p>
+            <p class="text-xs text-muted/50">TB/мес</p>
           </div>
           <div>
-            <p class="text-xs text-white/40 mb-1">Трафик с AI</p>
+            <p class="text-xs text-muted mb-1">Трафик с AI</p>
             <p id="calc-traffic-ai" class="text-2xl font-black text-green-400">--</p>
-            <p class="text-xs text-white/20">TB/мес</p>
+            <p class="text-xs text-muted/50">TB/мес</p>
           </div>
           <div>
-            <p class="text-xs text-white/40 mb-1">Стоимость без AI</p>
+            <p class="text-xs text-muted mb-1">Стоимость без AI</p>
             <p id="calc-cost-normal" class="text-2xl font-black text-red-400">--</p>
-            <p class="text-xs text-white/20">₽/мес</p>
+            <p class="text-xs text-muted/50">₽/мес</p>
           </div>
-          <div class="border border-purple-500/30 rounded-xl p-2 -m-2">
-            <p class="text-xs text-purple-400 mb-1 font-bold">Экономия с AI</p>
-            <p id="calc-savings" class="text-2xl font-black text-purple-400">--</p>
-            <p class="text-xs text-purple-400/60">₽/мес</p>
+          <div class="border border-accent/30 rounded-xl p-2 -m-2">
+            <p class="text-xs text-accent mb-1 font-bold">Экономия с AI</p>
+            <p id="calc-savings" class="text-2xl font-black text-accent">--</p>
+            <p class="text-xs text-accent/60">₽/мес</p>
           </div>
         </div>
 
         <div class="mt-6 text-center">
-          <p class="text-sm text-white/50">За год это</p>
-          <p id="calc-yearly" class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">--</p>
-          <p class="text-xs text-white/20 mt-2">Средний битрейт 2000 kbps, CDN 3 ₽/GB, AI-сжатие -24% (SimaBit, 2025)</p>
+          <p class="text-sm text-muted">За год это</p>
+          <p id="calc-yearly" class="text-4xl font-black text-accent font-mono">--</p>
+          <p class="text-xs text-muted/50 mt-2">Средний битрейт 2000 kbps, CDN 3 ₽/GB, AI-сжатие -24% (SimaBit, 2025)</p>
         </div>
       </div>
     </div>
@@ -841,13 +867,13 @@ function initAILab() {
   container.innerHTML = `
     <!-- Video + capture -->
     <div id="lab-video-section">
-      <p class="text-sm text-white/40 mb-2 text-center">Сжатое видео (150 kbps, 640x360) — выбери момент и захвати кадр</p>
+      <p class="text-sm text-muted mb-2 text-center">Сжатое видео (150 kbps, 640x360) — выбери момент и захвати кадр</p>
       <div class="video-wrapper rounded-2xl max-w-2xl mx-auto">
         <video id="lab-video" class="w-full h-full object-cover" autoplay loop muted playsinline
           src="assets/videos/bad.mp4"></video>
       </div>
       <div class="text-center mt-4">
-        <button id="lab-capture-btn" class="px-6 py-3 bg-white/10 border border-white/20 rounded-full font-bold hover:bg-white/20 transition">
+        <button id="lab-capture-btn" class="px-6 py-3 bg-white/10 border border-border rounded-full font-bold hover:bg-white/20 transition">
           Захватить кадр
         </button>
       </div>
@@ -858,96 +884,96 @@ function initAILab() {
       <div class="grid sm:grid-cols-2 gap-6">
         <div>
           <p class="text-sm text-red-400/60 mb-2 text-center">До — сжатый кадр (150 kbps)</p>
-          <div class="video-wrapper rounded-2xl bg-black/50">
+          <div class="video-wrapper rounded-2xl bg-surface">
             <canvas id="lab-canvas-input" class="w-full h-full"></canvas>
           </div>
         </div>
         <div>
           <p class="text-sm text-green-400/60 mb-2 text-center">После — AI восстановил качество</p>
-          <div class="video-wrapper rounded-2xl bg-black/50">
+          <div class="video-wrapper rounded-2xl bg-surface">
             <canvas id="lab-canvas-result" class="w-full h-full"></canvas>
           </div>
         </div>
       </div>
       <div class="flex justify-center gap-4 mt-6">
-        <button id="lab-upscale-btn" class="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full font-bold hover:scale-105 transition-transform pulse-glow">
+        <button id="lab-upscale-btn" class="px-6 py-3 bg-accent/10 border border-accent/30 text-accent hover:bg-accent/20 rounded-full font-bold hover:scale-105 transition-transform pulse-glow">
           Улучшить нейросетью (ESRGAN)
         </button>
-        <button id="lab-compare-btn" class="px-6 py-3 bg-white/10 border border-purple-400/50 rounded-full font-bold hover:bg-purple-500/20 transition hidden">
+        <button id="lab-compare-btn" class="px-6 py-3 bg-white/10 border border-accent/50 rounded-full font-bold hover:bg-accent/10 transition hidden">
           Сравнить на весь экран
         </button>
-        <button id="lab-recapture-btn" class="px-6 py-3 bg-white/10 border border-white/20 rounded-full font-bold hover:bg-white/20 transition">
+        <button id="lab-recapture-btn" class="px-6 py-3 bg-white/10 border border-border rounded-full font-bold hover:bg-white/20 transition">
           Новый кадр
         </button>
       </div>
     </div>
 
     <!-- Status -->
-    <div id="lab-status" class="mt-6 text-center text-sm text-white/30"></div>
+    <div id="lab-status" class="mt-6 text-center text-sm text-muted/70"></div>
 
     <!-- Progress -->
     <div id="lab-progress" class="mt-4 h-1.5 bg-white/10 rounded-full overflow-hidden hidden">
-      <div id="lab-progress-bar" class="h-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300" style="width: 0%"></div>
+      <div id="lab-progress-bar" class="h-full rounded-full bg-accent transition-all duration-300" style="width: 0%"></div>
     </div>
 
     <!-- Metrics (hidden until upscale) -->
     <div id="lab-metrics" class="mt-6 hidden">
-      <div class="bg-white/5 rounded-2xl p-5 border border-white/10">
-        <h4 class="font-bold text-sm text-white/60 mb-4 text-center">Метрики качества (No-Reference)</h4>
+      <div class="bg-surface rounded-2xl p-5 border border-border">
+        <h4 class="font-bold text-sm text-muted mb-4 text-center">Метрики качества (No-Reference)</h4>
         <div class="grid grid-cols-3 gap-4 text-center">
           <div>
-            <p class="text-xs text-white/40 mb-1">Резкость (Laplacian)</p>
+            <p class="text-xs text-muted mb-1">Резкость (Laplacian)</p>
             <p class="text-sm text-red-400">До: <strong id="metric-sharp-before">—</strong></p>
             <p class="text-sm text-green-400">После: <strong id="metric-sharp-after">—</strong></p>
           </div>
           <div>
-            <p class="text-xs text-white/40 mb-1">Контраст (σ)</p>
+            <p class="text-xs text-muted mb-1">Контраст (σ)</p>
             <p class="text-sm text-red-400">До: <strong id="metric-contrast-before">—</strong></p>
             <p class="text-sm text-green-400">После: <strong id="metric-contrast-after">—</strong></p>
           </div>
           <div>
-            <p class="text-xs text-white/40 mb-1">Детализация (HF energy)</p>
+            <p class="text-xs text-muted mb-1">Детализация (HF energy)</p>
             <p class="text-sm text-red-400">До: <strong id="metric-detail-before">—</strong></p>
             <p class="text-sm text-green-400">После: <strong id="metric-detail-after">—</strong></p>
           </div>
         </div>
         <div class="mt-4 text-center">
           <p class="text-lg font-bold">Улучшение резкости: <span id="metric-improvement" class="text-green-400">—</span></p>
-          <p class="text-xs text-white/20 mt-1">Laplacian variance — стандартная метрика оценки чёткости изображения (Pech-Pacheco et al.)</p>
+          <p class="text-xs text-muted/50 mt-1">Laplacian variance — стандартная метрика оценки чёткости изображения (Pech-Pacheco et al.)</p>
         </div>
       </div>
     </div>
 
     <!-- Architecture info -->
-    <div class="mt-8 bg-white/5 rounded-2xl p-6 border border-white/10">
-      <h4 class="font-bold text-sm text-white/60 mb-4 text-center">Архитектура</h4>
+    <div class="mt-8 bg-surface rounded-2xl p-6 border border-border">
+      <h4 class="font-bold text-sm text-muted mb-4 text-center">Архитектура</h4>
       <div class="flex items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm flex-wrap">
         <span class="bg-red-500/20 text-red-400 px-3 py-1.5 rounded-lg">Кадр 150 kbps</span>
-        <span class="text-white/30">&rarr;</span>
-        <span class="bg-purple-500/20 text-purple-400 px-3 py-1.5 rounded-lg">ESRGAN (удаление артефактов)</span>
-        <span class="text-white/30">&rarr;</span>
+        <span class="text-muted/70">&rarr;</span>
+        <span class="bg-accent/10 text-accent px-3 py-1.5 rounded-lg">ESRGAN (удаление артефактов)</span>
+        <span class="text-muted/70">&rarr;</span>
         <span class="bg-blue-500/20 text-blue-400 px-3 py-1.5 rounded-lg">TensorFlow.js</span>
-        <span class="text-white/30">&rarr;</span>
+        <span class="text-muted/70">&rarr;</span>
         <span class="bg-green-500/20 text-green-400 px-3 py-1.5 rounded-lg">WebGL/GPU</span>
-        <span class="text-white/30">&rarr;</span>
-        <span class="bg-pink-500/20 text-pink-400 px-3 py-1.5 rounded-lg">Чистый кадр</span>
+        <span class="text-muted/70">&rarr;</span>
+        <span class="bg-green/10 text-green px-3 py-1.5 rounded-lg">Чистый кадр</span>
       </div>
-      <p class="text-xs text-white/20 mt-4 text-center">
+      <p class="text-xs text-muted/50 mt-4 text-center">
         ESRGAN анализирует артефакты сжатия (блочность, размытие, шум) и восстанавливает потерянные детали. Работает в браузере через TensorFlow.js — без сервера, без облака.
       </p>
     </div>
 
     <!-- Fullscreen comparison overlay -->
-    <div id="lab-lightbox" class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center cursor-pointer" style="display:none;">
-      <div class="absolute top-4 right-4 text-white/50 text-sm z-10">ESC или клик для закрытия</div>
+    <div id="lab-lightbox" class="fixed inset-0 z-[100] bg-bg/98 flex items-center justify-center cursor-pointer" style="display:none;">
+      <div class="absolute top-4 right-4 text-muted text-xs z-10">esc / click to close</div>
       <div class="grid grid-cols-2 gap-6 max-w-[90vw]">
         <div class="text-center">
           <p class="text-red-400 font-bold mb-3 text-base" id="lightbox-label-before">До</p>
-          <canvas id="lab-lightbox-canvas" class="rounded-xl border-2 border-red-500/40" style="width:42vw;height:auto;"></canvas>
+          <canvas id="lab-lightbox-canvas" class="rounded-xl border-2 border-red/40" style="width:42vw;height:auto;"></canvas>
         </div>
         <div class="text-center">
           <p class="text-green-400 font-bold mb-3 text-base" id="lightbox-label-after">После ESRGAN</p>
-          <canvas id="lab-lightbox-canvas-after" class="rounded-xl border-2 border-green-500/40" style="width:42vw;height:auto;"></canvas>
+          <canvas id="lab-lightbox-canvas-after" class="rounded-xl border-2 border-green/40" style="width:42vw;height:auto;"></canvas>
         </div>
       </div>
     </div>

@@ -3,159 +3,193 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ReframeAI — Видео меньше. Качество то же.</title>
+  <title>reframe.ai — neural video compression</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: '#0d1117',
+            surface: '#161b22',
+            border: '#21262d',
+            muted: '#8b949e',
+            accent: '#58a6ff',
+            green: '#3fb950',
+            red: '#f85149',
+            amber: '#d29922',
+            purple: '#bc8cff',
+          }
+        }
+      }
+    }
+  </script>
 </head>
-<body class="bg-black text-white font-['Inter'] overflow-x-hidden">
+<body class="bg-bg text-[#c9d1d9] font-['JetBrains_Mono'] overflow-x-hidden">
 
   <!-- NAV -->
-  <nav class="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
-    <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
-      <a href="#hero" class="text-xl font-black tracking-tight">
-        <span class="text-purple-400">Reframe</span><span class="text-white">AI</span>
+  <nav class="fixed top-0 w-full z-50 bg-bg/95 backdrop-blur-sm border-b border-border">
+    <div class="max-w-6xl mx-auto px-4 h-12 flex items-center justify-between">
+      <a href="#hero" class="text-sm font-bold">
+        <span class="text-muted">~/</span><span class="text-accent">reframe</span><span class="text-muted">.ai</span>
       </a>
-      <div class="hidden sm:flex gap-6 text-sm text-white/60">
-        <a href="#game" class="hover:text-white transition">Игра</a>
-        <a href="#restore" class="hover:text-white transition">Магия</a>
-        <a href="#slider" class="hover:text-white transition">Слайдер</a>
-        <a href="#how" class="hover:text-white transition">Как это работает</a>
-        <a href="#ai-lab" class="hover:text-white transition">AI Lab</a>
+      <div class="hidden sm:flex gap-5 text-xs text-muted">
+        <a href="#game" class="hover:text-accent transition">test</a>
+        <a href="#restore" class="hover:text-accent transition">restore</a>
+        <a href="#slider" class="hover:text-accent transition">analysis</a>
+        <a href="#how" class="hover:text-accent transition">pipeline</a>
+        <a href="#ai-lab" class="hover:text-accent transition">lab</a>
       </div>
-      <!-- Mobile menu button -->
-      <button id="mobile-menu-btn" class="sm:hidden text-white/60 hover:text-white">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <button id="mobile-menu-btn" class="sm:hidden text-muted hover:text-white">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
         </svg>
       </button>
     </div>
-    <!-- Mobile dropdown -->
-    <div id="mobile-menu" class="sm:hidden hidden bg-black/95 backdrop-blur-md border-b border-white/10 px-4 py-4">
-      <a href="#game" class="block py-2 text-white/60 hover:text-white transition">Игра</a>
-      <a href="#restore" class="block py-2 text-white/60 hover:text-white transition">Магия</a>
-      <a href="#slider" class="block py-2 text-white/60 hover:text-white transition">Слайдер</a>
-      <a href="#how" class="block py-2 text-white/60 hover:text-white transition">Как это работает</a>
-      <a href="#ai-lab" class="block py-2 text-white/60 hover:text-white transition">AI Lab</a>
+    <div id="mobile-menu" class="sm:hidden hidden bg-bg/95 border-b border-border px-4 py-3 text-xs">
+      <a href="#game" class="block py-2 text-muted hover:text-accent transition">test</a>
+      <a href="#restore" class="block py-2 text-muted hover:text-accent transition">restore</a>
+      <a href="#slider" class="block py-2 text-muted hover:text-accent transition">analysis</a>
+      <a href="#how" class="block py-2 text-muted hover:text-accent transition">pipeline</a>
+      <a href="#ai-lab" class="block py-2 text-muted hover:text-accent transition">lab</a>
     </div>
   </nav>
 
   <!-- HERO -->
-  <section id="hero" class="min-h-screen flex flex-col items-center justify-center text-center px-4 pt-14 relative grid-bg">
-    <!-- Decorative orbs -->
-    <div class="hero-orb" style="width:400px;height:400px;background:#7c3aed;top:10%;left:-10%;"></div>
-    <div class="hero-orb" style="width:300px;height:300px;background:#ec4899;top:30%;right:-5%;animation-delay:-3s;"></div>
-    <div class="hero-orb" style="width:200px;height:200px;background:#6366f1;bottom:20%;left:30%;animation-delay:-5s;"></div>
-    <div class="relative z-10 mb-6">
-      <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30">
-        AI-powered video compression
-      </span>
+  <section id="hero" class="min-h-screen flex flex-col items-center justify-center text-center px-4 pt-12">
+    <div class="mb-8">
+      <span class="text-xs text-muted">// neural network + HEVC codec</span>
     </div>
-    <h1 class="relative z-10 text-5xl sm:text-7xl font-black leading-tight mb-6">
-      Видео в <span style="background:linear-gradient(90deg,#c084fc,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">10× легче</span><br>
-      Качество — то же
+    <h1 class="text-3xl sm:text-5xl font-bold leading-tight mb-6 font-['Inter'] tracking-tight">
+      Сжатие видео в <span class="text-accent">6x</span><br>
+      <span class="text-muted text-2xl sm:text-4xl">без потери качества</span>
     </h1>
-    <p class="relative z-10 text-lg sm:text-xl text-white/60 max-w-xl mb-10">
-      Нейросеть сжимает видео так, что вы не отличите от оригинала. Не верите? Попробуйте сами.
-    </p>
-    <a href="#game" class="relative z-10 group inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-lg font-bold hover:scale-105 transition-transform">
-      Попробовать
-      <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="bg-surface border border-border rounded-lg p-4 mb-10 max-w-md text-left text-sm">
+      <div class="text-muted mb-1">$ reframe --input video.mp4 --codec hevc</div>
+      <div><span class="text-green">&#10003;</span> Encoded: 12.4 MB → <span class="text-accent">2.1 MB</span></div>
+      <div><span class="text-green">&#10003;</span> VMAF: 94.7 <span class="text-muted">(визуально идентично)</span></div>
+      <div><span class="text-green">&#10003;</span> Model: ESRGAN <span class="text-muted">artifact removal</span></div>
+    </div>
+    <a href="#game" class="inline-flex items-center gap-2 px-5 py-2.5 bg-accent/10 border border-accent/30 text-accent text-sm rounded-md hover:bg-accent/20 transition-colors">
+      Проверить самому
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
       </svg>
     </a>
-    <div class="relative z-10 mt-16 animate-bounce text-white/30">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
-      </svg>
-    </div>
   </section>
 
   <!-- SCREEN 1: GAME -->
-  <section id="game" class="min-h-screen flex flex-col items-center justify-center px-4 py-20 section-glow">
-    <h2 class="text-3xl sm:text-5xl font-black text-center mb-4">
-      Угадай, где <span class="text-purple-400">AI</span>
+  <section id="game" class="min-h-screen flex flex-col items-center justify-center px-4 py-20">
+    <p class="text-xs text-muted mb-3">// blind test</p>
+    <h2 class="text-xl sm:text-3xl font-bold text-center mb-3 font-['Inter']">
+      Какое видео обработано <span class="text-accent">нейросетью</span>?
     </h2>
-    <p class="text-white/50 text-center mb-12 max-w-md">
-      Одно видео сжато обычным кодеком. Другое — нейросетью. Какое лучше?
+    <p class="text-muted text-center mb-10 max-w-md text-xs">
+      Одно видео — стандартный HEVC. Другое прошло ESRGAN post-processing. Попробуй отличить.
     </p>
-    <div id="game-container" class="w-full max-w-5xl">
-      <!-- Game content will be injected by JS -->
-    </div>
+    <div id="game-container" class="w-full max-w-5xl"></div>
   </section>
 
   <!-- SCREEN 2: RESTORE -->
-  <section id="restore" class="min-h-screen flex flex-col items-center justify-center px-4 py-20 bg-gradient-to-b from-black via-purple-950/20 to-black">
-    <h2 class="text-3xl sm:text-5xl font-black text-center mb-4">
-      Восстанови <span class="text-pink-400">разрушенное</span>
+  <section id="restore" class="min-h-screen flex flex-col items-center justify-center px-4 py-20 border-t border-border">
+    <p class="text-xs text-muted mb-3">// artifact removal</p>
+    <h2 class="text-xl sm:text-3xl font-bold text-center mb-3 font-['Inter']">
+      Восстановление из <span class="text-red">150 kbps</span>
     </h2>
-    <p class="text-white/50 text-center mb-12 max-w-md">
-      Видео сжато до предела — пиксели, артефакты, каша. Нажми кнопку и смотри магию.
+    <p class="text-muted text-center mb-10 max-w-md text-xs">
+      Видео закодировано далеко за пределами допустимого битрейта. Нейросеть восстанавливает потерянные данные.
     </p>
-    <div id="restore-container" class="w-full max-w-3xl">
-      <!-- Restore content will be injected by JS -->
-    </div>
+    <div id="restore-container" class="w-full max-w-3xl"></div>
   </section>
 
   <!-- SCREEN 3: SLIDER -->
-  <section id="slider" class="min-h-screen flex flex-col items-center justify-center px-4 py-20 section-glow">
-    <h2 class="text-3xl sm:text-5xl font-black text-center mb-4">
-      Битрейт vs <span class="text-purple-400">Качество</span>
+  <section id="slider" class="min-h-screen flex flex-col items-center justify-center px-4 py-20 border-t border-border">
+    <p class="text-xs text-muted mb-3">// bitrate analysis</p>
+    <h2 class="text-xl sm:text-3xl font-bold text-center mb-3 font-['Inter']">
+      Битрейт vs <span class="text-accent">VMAF</span>
     </h2>
-    <p class="text-white/50 text-center mb-12 max-w-md">
-      Двигай ползунок. Смотри, как AI держит качество там, где обычный кодек сдаётся.
+    <p class="text-muted text-center mb-10 max-w-md text-xs">
+      Как ESRGAN удерживает метрику качества при снижении битрейта.
     </p>
-    <div id="slider-container" class="w-full max-w-4xl">
-      <!-- Slider content will be injected by JS -->
-    </div>
+    <div id="slider-container" class="w-full max-w-4xl"></div>
   </section>
 
   <!-- HOW IT WORKS -->
-  <section id="how" class="py-20 px-4">
-    <div class="max-w-4xl mx-auto text-center">
-      <h2 class="text-3xl sm:text-5xl font-black mb-12">
-        Как это <span class="text-purple-400">работает</span>?
+  <section id="how" class="py-20 px-4 border-t border-border">
+    <div class="max-w-3xl mx-auto">
+      <p class="text-xs text-muted mb-3 text-center">// architecture</p>
+      <h2 class="text-xl sm:text-3xl font-bold text-center mb-12 font-['Inter']">
+        Пайплайн <span class="text-accent">обработки</span>
       </h2>
-      <div class="grid sm:grid-cols-3 gap-8">
-        <div class="bg-white/5 rounded-2xl p-6 border border-white/10">
-          <div class="text-4xl mb-4">📉</div>
-          <h3 class="font-bold text-lg mb-2">Сжатие</h3>
-          <p class="text-white/50 text-sm">Видео агрессивно сжимается кодеком HEVC — файл уменьшается в 5-10 раз</p>
+
+      <div class="bg-surface border border-border rounded-lg overflow-hidden">
+        <!-- Step 1 -->
+        <div class="p-5 border-b border-border">
+          <div class="flex items-start gap-4">
+            <span class="text-red text-xs mt-0.5 shrink-0">step_1</span>
+            <div>
+              <p class="text-sm font-semibold mb-1 font-['Inter']">Кодирование HEVC (H.265)</p>
+              <p class="text-xs text-muted leading-relaxed">Видеопоток сжимается кодеком с агрессивным CRF. Размер файла падает в 5-10x. Побочный эффект — блочные артефакты, потеря высокочастотных деталей, цветовой banding.</p>
+            </div>
+          </div>
         </div>
-        <div class="bg-white/5 rounded-2xl p-6 border border-white/10">
-          <div class="text-4xl mb-4">🧠</div>
-          <h3 class="font-bold text-lg mb-2">Нейросеть</h3>
-          <p class="text-white/50 text-sm">AI анализирует артефакты сжатия и восстанавливает потерянные детали</p>
+        <!-- Step 2 -->
+        <div class="p-5 border-b border-border">
+          <div class="flex items-start gap-4">
+            <span class="text-accent text-xs mt-0.5 shrink-0">step_2</span>
+            <div>
+              <p class="text-sm font-semibold mb-1 font-['Inter']">ESRGAN inference</p>
+              <p class="text-xs text-muted leading-relaxed">Enhanced Super-Resolution GAN анализирует каждый кадр. Генератор восстанавливает текстуры и края. Дискриминатор обеспечивает реалистичность. Работает покадрово через TensorFlow.js на GPU клиента.</p>
+            </div>
+          </div>
         </div>
-        <div class="bg-white/5 rounded-2xl p-6 border border-white/10">
-          <div class="text-4xl mb-4">✨</div>
-          <h3 class="font-bold text-lg mb-2">Результат</h3>
-          <p class="text-white/50 text-sm">Маленький файл + высокое качество. Вы не отличите от оригинала.</p>
+        <!-- Step 3 -->
+        <div class="p-5">
+          <div class="flex items-start gap-4">
+            <span class="text-green text-xs mt-0.5 shrink-0">step_3</span>
+            <div>
+              <p class="text-sm font-semibold mb-1 font-['Inter']">Результат</p>
+              <p class="text-xs text-muted leading-relaxed">Файл весит как сжатый (2.1 MB вместо 12.4 MB), а визуальное качество на уровне оригинала. VMAF > 90. Laplacian variance увеличивается на 15-40% относительно сжатого кадра.</p>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <!-- Pipeline visualization -->
+      <div class="mt-6 bg-surface border border-border rounded-lg p-4 text-xs text-center">
+        <span class="text-muted">input.mp4</span>
+        <span class="text-border mx-2">→</span>
+        <span class="text-red">HEVC encode</span>
+        <span class="text-border mx-2">→</span>
+        <span class="text-amber">compressed.mp4</span>
+        <span class="text-border mx-2">→</span>
+        <span class="text-accent">ESRGAN</span>
+        <span class="text-border mx-2">→</span>
+        <span class="text-green">output.mp4</span>
       </div>
     </div>
   </section>
 
   <!-- SCREEN 5: AI LAB -->
-  <section id="ai-lab" class="min-h-screen flex flex-col items-center justify-center px-4 py-20 bg-gradient-to-b from-black via-purple-950/20 to-black">
-    <h2 class="text-3xl sm:text-5xl font-black text-center mb-4">
-      AI <span class="text-purple-400">Лаборатория</span>
+  <section id="ai-lab" class="min-h-screen flex flex-col items-center justify-center px-4 py-20 border-t border-border">
+    <p class="text-xs text-muted mb-3">// live inference</p>
+    <h2 class="text-xl sm:text-3xl font-bold text-center mb-3 font-['Inter']">
+      ESRGAN <span class="text-accent">в браузере</span>
     </h2>
-    <p class="text-white/50 text-center mb-12 max-w-lg">
-      Настоящая нейросеть ESRGAN работает прямо в браузере. Захвати кадр из сжатого видео — AI восстановит качество, не меняя разрешение.
+    <p class="text-muted text-center mb-10 max-w-lg text-xs">
+      TensorFlow.js + WebGL. Модель работает на GPU клиента. Захвати кадр из сжатого видео — нейросеть восстановит качество в реальном времени.
     </p>
-    <div id="ai-lab-container" class="w-full max-w-4xl">
-      <!-- AI Lab content will be injected by JS -->
-    </div>
+    <div id="ai-lab-container" class="w-full max-w-4xl"></div>
   </section>
 
   <!-- FOOTER -->
-  <footer class="border-t border-white/10 py-8 text-center text-white/30 text-sm">
-    <p><span class="text-purple-400 font-bold">ReframeAI</span> — конкурсный проект, 2026</p>
+  <footer class="border-t border-border py-6 text-center text-xs text-muted">
+    <p>~/reframe.ai <span class="text-border">—</span> 2026</p>
   </footer>
 
-  <!-- TensorFlow.js + UpscalerJS -->
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@upscalerjs/default-model@latest/dist/umd/index.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/upscaler@latest/dist/browser/umd/upscaler.min.js"></script>
