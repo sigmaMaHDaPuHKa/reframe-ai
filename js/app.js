@@ -718,19 +718,12 @@ function initAILab() {
   container.innerHTML = `
     <!-- Video + capture -->
     <div id="lab-video-section">
-      <p class="text-sm text-white/40 mb-2 text-center">Сжатое видео (150 kbps) — выбери момент и захвати кадр</p>
+      <p class="text-sm text-white/40 mb-2 text-center">Сжатое видео (150 kbps, 640x360) — выбери момент и захвати кадр</p>
       <div class="video-wrapper rounded-2xl max-w-2xl mx-auto">
         <video id="lab-video" class="w-full h-full object-cover" autoplay loop muted playsinline
           src="assets/videos/bad.mp4"></video>
       </div>
-      <!-- Resolution selector -->
-      <div class="flex items-center justify-center gap-3 mt-4">
-        <span class="text-xs text-white/40">Разрешение:</span>
-        <button class="res-btn px-3 py-1.5 rounded-full text-xs border border-purple-400 text-purple-400 font-bold" data-w="480" data-h="270">480x270 → 960x540</button>
-        <button class="res-btn px-3 py-1.5 rounded-full text-xs border border-white/20 text-white/50 hover:border-purple-400 hover:text-purple-400 transition" data-w="640" data-h="360">640x360 → 1280x720</button>
-        <button class="res-btn px-3 py-1.5 rounded-full text-xs border border-white/20 text-white/50 hover:border-purple-400 hover:text-purple-400 transition" data-w="960" data-h="540">960x540 → 1920x1080</button>
-      </div>
-      <div class="text-center mt-3">
+      <div class="text-center mt-4">
         <button id="lab-capture-btn" class="px-6 py-3 bg-white/10 border border-white/20 rounded-full font-bold hover:bg-white/20 transition">
           Захватить кадр
         </button>
@@ -741,22 +734,25 @@ function initAILab() {
     <div id="lab-comparison" class="hidden">
       <div class="grid sm:grid-cols-2 gap-6">
         <div>
-          <p class="text-sm text-red-400/60 mb-2 text-center">Захваченный кадр (до)</p>
+          <p class="text-sm text-red-400/60 mb-2 text-center">До — сжатый кадр (150 kbps)</p>
           <div class="video-wrapper rounded-2xl bg-black/50">
             <canvas id="lab-canvas-input" class="w-full h-full"></canvas>
           </div>
         </div>
         <div>
-          <p class="text-sm text-green-400/60 mb-2 text-center">После ESRGAN</p>
+          <p class="text-sm text-green-400/60 mb-2 text-center">После — AI восстановил качество</p>
           <div class="video-wrapper rounded-2xl flex items-center justify-center bg-black/50">
             <p class="text-white/20 text-sm" id="lab-placeholder">Нажми "Улучшить"</p>
-            <img id="lab-result-img" class="w-full h-full object-cover hidden">
+            <canvas id="lab-canvas-result" class="w-full h-full hidden"></canvas>
           </div>
         </div>
       </div>
       <div class="flex justify-center gap-4 mt-6">
         <button id="lab-upscale-btn" class="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full font-bold hover:scale-105 transition-transform pulse-glow">
           Улучшить нейросетью (ESRGAN)
+        </button>
+        <button id="lab-compare-btn" class="px-6 py-3 bg-white/10 border border-purple-400/50 rounded-full font-bold hover:bg-purple-500/20 transition hidden">
+          Сравнить на весь экран
         </button>
         <button id="lab-recapture-btn" class="px-6 py-3 bg-white/10 border border-white/20 rounded-full font-bold hover:bg-white/20 transition">
           Новый кадр
@@ -804,19 +800,34 @@ function initAILab() {
     <div class="mt-8 bg-white/5 rounded-2xl p-6 border border-white/10">
       <h4 class="font-bold text-sm text-white/60 mb-4 text-center">Архитектура</h4>
       <div class="flex items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm flex-wrap">
-        <span class="bg-red-500/20 text-red-400 px-3 py-1.5 rounded-lg">Сжатый кадр</span>
+        <span class="bg-red-500/20 text-red-400 px-3 py-1.5 rounded-lg">Кадр 150 kbps</span>
         <span class="text-white/30">&rarr;</span>
-        <span class="bg-purple-500/20 text-purple-400 px-3 py-1.5 rounded-lg">ESRGAN модель</span>
+        <span class="bg-purple-500/20 text-purple-400 px-3 py-1.5 rounded-lg">ESRGAN (удаление артефактов)</span>
         <span class="text-white/30">&rarr;</span>
         <span class="bg-blue-500/20 text-blue-400 px-3 py-1.5 rounded-lg">TensorFlow.js</span>
         <span class="text-white/30">&rarr;</span>
         <span class="bg-green-500/20 text-green-400 px-3 py-1.5 rounded-lg">WebGL/GPU</span>
         <span class="text-white/30">&rarr;</span>
-        <span class="bg-pink-500/20 text-pink-400 px-3 py-1.5 rounded-lg">HD кадр</span>
+        <span class="bg-pink-500/20 text-pink-400 px-3 py-1.5 rounded-lg">Чистый кадр</span>
       </div>
       <p class="text-xs text-white/20 mt-4 text-center">
-        Модель ESRGAN (Enhanced Super-Resolution GAN) работает прямо в браузере через TensorFlow.js. Без сервера. Без облака.
+        ESRGAN анализирует артефакты сжатия (блочность, размытие, шум) и восстанавливает потерянные детали. Работает в браузере через TensorFlow.js — без сервера, без облака.
       </p>
+    </div>
+
+    <!-- Fullscreen comparison overlay -->
+    <div id="lab-lightbox" class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center cursor-pointer" style="display:none;">
+      <div class="absolute top-4 right-4 text-white/50 text-sm z-10">ESC или клик для закрытия</div>
+      <div class="grid grid-cols-2 gap-6 max-w-[90vw]">
+        <div class="text-center">
+          <p class="text-red-400 font-bold mb-3 text-base" id="lightbox-label-before">До</p>
+          <canvas id="lab-lightbox-canvas" class="rounded-xl border-2 border-red-500/40" style="width:42vw;height:auto;"></canvas>
+        </div>
+        <div class="text-center">
+          <p class="text-green-400 font-bold mb-3 text-base" id="lightbox-label-after">После ESRGAN</p>
+          <canvas id="lab-lightbox-canvas-after" class="rounded-xl border-2 border-green-500/40" style="width:42vw;height:auto;"></canvas>
+        </div>
+      </div>
     </div>
   `;
 
@@ -827,27 +838,15 @@ function initAILab() {
   const upscaleBtn = document.getElementById('lab-upscale-btn');
   const recaptureBtn = document.getElementById('lab-recapture-btn');
   const canvasInput = document.getElementById('lab-canvas-input');
-  const resultImg = document.getElementById('lab-result-img');
+  const canvasResult = document.getElementById('lab-canvas-result');
   const placeholder = document.getElementById('lab-placeholder');
   const statusEl = document.getElementById('lab-status');
   const progress = document.getElementById('lab-progress');
   const progressBar = document.getElementById('lab-progress-bar');
 
   let upscaler = null;
-  let captureW = 480;
-  let captureH = 270;
-
-  // Resolution buttons
-  container.querySelectorAll('.res-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      container.querySelectorAll('.res-btn').forEach(b => {
-        b.className = 'res-btn px-3 py-1.5 rounded-full text-xs border border-white/20 text-white/50 hover:border-purple-400 hover:text-purple-400 transition';
-      });
-      btn.className = 'res-btn px-3 py-1.5 rounded-full text-xs border border-purple-400 text-purple-400 font-bold';
-      captureW = parseInt(btn.dataset.w);
-      captureH = parseInt(btn.dataset.h);
-    });
-  });
+  const captureW = 640;
+  const captureH = 360;
 
   // Init upscaler
   if (typeof Upscaler !== 'undefined') {
@@ -882,12 +881,13 @@ function initAILab() {
 
     // Reset result side
     placeholder.classList.remove('hidden');
-    resultImg.classList.add('hidden');
+    canvasResult.classList.add('hidden');
     document.getElementById('lab-metrics').classList.add('hidden');
+    compareBtn.classList.add('hidden');
 
     upscaleBtn.disabled = false;
     upscaleBtn.textContent = 'Улучшить нейросетью (ESRGAN)';
-    statusEl.textContent = 'Кадр захвачен (' + captureW + 'x' + captureH + ' → ' + (captureW*2) + 'x' + (captureH*2) + '). Нажми "Улучшить".';
+    statusEl.textContent = 'Кадр захвачен (640x360, 150 kbps). Нажми "Улучшить" — AI восстановит потерянное качество.';
   }
 
   captureBtn.addEventListener('click', captureFrame);
@@ -896,6 +896,36 @@ function initAILab() {
     comparison.classList.add('hidden');
     videoSection.classList.remove('hidden');
     statusEl.textContent = 'Захвати новый кадр.';
+  });
+
+  // Fullscreen comparison
+  const lightbox = document.getElementById('lab-lightbox');
+  const lightboxCanvasBefore = document.getElementById('lab-lightbox-canvas');
+  const lightboxCanvasAfter = document.getElementById('lab-lightbox-canvas-after');
+  const compareBtn = document.getElementById('lab-compare-btn');
+
+  function openCompare() {
+    if (canvasResult.classList.contains('hidden')) return;
+    // Both canvases same size
+    lightboxCanvasBefore.width = captureW;
+    lightboxCanvasBefore.height = captureH;
+    lightboxCanvasBefore.getContext('2d').drawImage(canvasInput, 0, 0);
+    lightboxCanvasAfter.width = captureW;
+    lightboxCanvasAfter.height = captureH;
+    lightboxCanvasAfter.getContext('2d').drawImage(canvasResult, 0, 0);
+    document.getElementById('lightbox-label-before').textContent = 'До — 150 kbps, артефакты сжатия (640x360)';
+    document.getElementById('lightbox-label-after').textContent = 'После — AI восстановил качество (640x360)';
+    lightbox.style.display = 'flex';
+  }
+
+  function closeLightbox() {
+    lightbox.style.display = 'none';
+  }
+
+  compareBtn.addEventListener('click', (e) => { e.stopPropagation(); openCompare(); });
+  lightbox.addEventListener('click', closeLightbox);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeLightbox();
   });
 
   // Upscale
@@ -932,19 +962,23 @@ function initAILab() {
 
       const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
 
-      resultImg.src = result;
-      resultImg.classList.remove('hidden');
-      resultImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
-      placeholder.classList.add('hidden');
+      // Draw ESRGAN result back to 640x360 (same as input)
+      const tmpImg = new Image();
+      tmpImg.onload = () => {
+        canvasResult.width = captureW;
+        canvasResult.height = captureH;
+        canvasResult.getContext('2d').drawImage(tmpImg, 0, 0, captureW, captureH);
+        canvasResult.classList.remove('hidden');
+        placeholder.classList.add('hidden');
 
-      statusEl.innerHTML = 'Готово за <strong class="text-green-400">' + elapsed + 's</strong> | Вход: ' + captureW + 'x' + captureH + ' → Выход: ' + (captureW*2) + 'x' + (captureH*2) + ' | Модель: ESRGAN x2';
-      upscaleBtn.textContent = 'Готово!';
-      upscaleBtn.disabled = true;
+        statusEl.innerHTML = 'Готово за <strong class="text-green-400">' + elapsed + 's</strong> | Разрешение: 640x360 (без изменений) | AI убрал артефакты сжатия | Модель: ESRGAN';
+        upscaleBtn.textContent = 'Готово!';
+        upscaleBtn.disabled = true;
+        compareBtn.classList.remove('hidden');
 
-      // Calculate metrics
-      resultImg.onload = () => {
+        // Calculate metrics
         const beforeData = getPixels(canvasInput);
-        const afterData = getPixels(resultImg);
+        const afterData = getPixels(canvasResult);
 
         const sharpBefore = calcSharpness(beforeData);
         const sharpAfter = calcSharpness(afterData);
@@ -966,6 +1000,7 @@ function initAILab() {
         document.getElementById('lab-metrics').classList.remove('hidden');
         document.getElementById('lab-metrics').classList.add('fade-in-up');
       };
+      tmpImg.src = result;
 
       setTimeout(() => { progress.classList.add('hidden'); }, 1000);
     } catch (err) {
