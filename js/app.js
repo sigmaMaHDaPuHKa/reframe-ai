@@ -212,6 +212,22 @@ function initRestore() {
         <p id="restore-status" class="text-white/30 text-sm mt-3">Нажми и смотри магию</p>
       </div>
 
+      <!-- Real AI result comparison -->
+      <div id="restore-ai-compare" class="mt-6 hidden">
+        <p class="text-sm text-white/40 mb-3 text-center">Реальная обработка нейросетью (ESRGAN) одного кадра:</p>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="text-center">
+            <p class="text-xs text-red-400/60 mb-1">До (150 kbps)</p>
+            <canvas id="restore-frame-before" class="w-full rounded-xl border border-red-500/30"></canvas>
+          </div>
+          <div class="text-center">
+            <p class="text-xs text-green-400/60 mb-1">После ESRGAN</p>
+            <canvas id="restore-frame-after" class="w-full rounded-xl border border-green-500/30"></canvas>
+          </div>
+        </div>
+        <div id="restore-ai-metrics" class="mt-3 text-center text-sm text-white/40"></div>
+      </div>
+
       <!-- After restore: savings card -->
       <div id="restore-savings" class="mt-6 hidden"></div>
     </div>
@@ -282,6 +298,42 @@ function initRestore() {
         btn.textContent = 'Восстановлено!';
         btn.classList.remove('opacity-50');
         status.textContent = 'AI восстановил качество, сохраняя размер файла 150 kbps';
+
+        // Run real ESRGAN on a frame
+        if (typeof Upscaler !== 'undefined') {
+          const aiCompare = document.getElementById('restore-ai-compare');
+          const frameBefore = document.getElementById('restore-frame-before');
+          const frameAfter = document.getElementById('restore-frame-after');
+          const aiMetrics = document.getElementById('restore-ai-metrics');
+
+          frameBefore.width = 640;
+          frameBefore.height = 360;
+          frameBefore.getContext('2d').drawImage(videoBad, 0, 0, 640, 360);
+
+          aiCompare.classList.remove('hidden');
+          aiCompare.classList.add('fade-in-up');
+          aiMetrics.textContent = 'ESRGAN обрабатывает кадр...';
+
+          const restoreUpscaler = new Upscaler({ model: DefaultUpscalerJSModel });
+          const t0 = performance.now();
+          restoreUpscaler.upscale(frameBefore, { patchSize: 64, padding: 4, output: 'src' }).then(result => {
+            const tmpImg = new Image();
+            tmpImg.onload = () => {
+              frameAfter.width = 640;
+              frameAfter.height = 360;
+              frameAfter.getContext('2d').drawImage(tmpImg, 0, 0, 640, 360);
+
+              const sec = ((performance.now() - t0) / 1000).toFixed(1);
+              const beforeData = getPixels(frameBefore);
+              const afterData = getPixels(frameAfter);
+              const sBefore = calcSharpness(beforeData).toFixed(1);
+              const sAfter = calcSharpness(afterData).toFixed(1);
+              const imp = (((sAfter - sBefore) / sBefore) * 100).toFixed(0);
+              aiMetrics.innerHTML = 'ESRGAN: <strong class="text-green-400">' + sec + 's</strong> | Резкость: ' + sBefore + ' → <strong class="text-green-400">' + sAfter + '</strong> (+' + imp + '%)';
+            };
+            tmpImg.src = result;
+          });
+        }
 
         // Show savings card
         savings.classList.remove('hidden');
@@ -430,6 +482,26 @@ function initSlider() {
       </div>
       <p class="text-xs text-white/15 mt-3 text-center">CDN 3 ₽/GB, 1 час просмотра/зритель/день. Данные: Selectel, SimaBit 2025</p>
     </div>
+
+    <!-- Real AI frame processing -->
+    <div class="mt-6 text-center">
+      <button id="slider-ai-btn" class="px-6 py-3 bg-white/10 border border-purple-400/50 rounded-full font-bold hover:bg-purple-500/20 transition">
+        Обработать текущий кадр нейросетью
+      </button>
+      <div id="slider-ai-compare" class="mt-4 hidden">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="text-center">
+            <p class="text-xs text-red-400/60 mb-1">Текущий кадр</p>
+            <canvas id="slider-frame-before" class="w-full rounded-xl border border-red-500/30"></canvas>
+          </div>
+          <div class="text-center">
+            <p class="text-xs text-green-400/60 mb-1">После ESRGAN</p>
+            <canvas id="slider-frame-after" class="w-full rounded-xl border border-green-500/30"></canvas>
+          </div>
+        </div>
+        <p id="slider-ai-metrics" class="mt-3 text-sm text-white/40"></p>
+      </div>
+    </div>
   `;
 
   const vidBad = document.getElementById('slider-video-bad');
@@ -544,6 +616,57 @@ function initSlider() {
 
   // Initial update
   updateSlider();
+
+  // Real AI frame processing
+  const sliderAiBtn = document.getElementById('slider-ai-btn');
+  const sliderAiCompare = document.getElementById('slider-ai-compare');
+  const sliderFrameBefore = document.getElementById('slider-frame-before');
+  const sliderFrameAfter = document.getElementById('slider-frame-after');
+  const sliderAiMetrics = document.getElementById('slider-ai-metrics');
+
+  sliderAiBtn.addEventListener('click', async () => {
+    if (typeof Upscaler === 'undefined') return;
+
+    // Capture current visible video frame
+    const currentVid = vidGood.style.opacity === '1' ? vidGood : (vidNormal.style.opacity === '1' ? vidNormal : vidBad);
+    sliderFrameBefore.width = 640;
+    sliderFrameBefore.height = 360;
+    sliderFrameBefore.getContext('2d').drawImage(currentVid, 0, 0, 640, 360);
+
+    sliderAiCompare.classList.remove('hidden');
+    sliderAiCompare.classList.add('fade-in-up');
+    sliderAiBtn.disabled = true;
+    sliderAiBtn.textContent = 'ESRGAN работает...';
+    sliderAiMetrics.textContent = 'Обработка нейросетью...';
+
+    const sliderUpscaler = new Upscaler({ model: DefaultUpscalerJSModel });
+    const t0 = performance.now();
+
+    try {
+      const result = await sliderUpscaler.upscale(sliderFrameBefore, { patchSize: 64, padding: 4, output: 'src' });
+      const tmpImg = new Image();
+      tmpImg.onload = () => {
+        sliderFrameAfter.width = 640;
+        sliderFrameAfter.height = 360;
+        sliderFrameAfter.getContext('2d').drawImage(tmpImg, 0, 0, 640, 360);
+
+        const sec = ((performance.now() - t0) / 1000).toFixed(1);
+        const beforeData = getPixels(sliderFrameBefore);
+        const afterData = getPixels(sliderFrameAfter);
+        const sBefore = calcSharpness(beforeData).toFixed(1);
+        const sAfter = calcSharpness(afterData).toFixed(1);
+        const imp = (((sAfter - sBefore) / sBefore) * 100).toFixed(0);
+        sliderAiMetrics.innerHTML = 'ESRGAN: <strong class="text-green-400">' + sec + 's</strong> | Резкость: ' + sBefore + ' → <strong class="text-green-400">' + sAfter + '</strong> (+' + imp + '%)';
+        sliderAiBtn.textContent = 'Обработать ещё раз';
+        sliderAiBtn.disabled = false;
+      };
+      tmpImg.src = result;
+    } catch (err) {
+      sliderAiMetrics.textContent = 'Ошибка: ' + err.message;
+      sliderAiBtn.textContent = 'Попробовать снова';
+      sliderAiBtn.disabled = false;
+    }
+  });
 }
 
 // ============================================
