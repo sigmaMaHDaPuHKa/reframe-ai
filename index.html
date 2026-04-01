@@ -61,21 +61,45 @@
 
   <!-- HERO -->
   <section id="hero" class="min-h-screen flex flex-col items-center justify-center text-center px-4 pt-12">
-    <div class="mb-8">
-      <span class="text-xs text-muted">// neural network + HEVC codec</span>
-    </div>
     <h1 class="text-4xl sm:text-6xl font-bold leading-tight mb-6 font-['Inter'] tracking-tight">
       Сжатие видео в <span class="text-accent">6x</span><br>
       <span class="text-muted text-3xl sm:text-5xl">без потери качества</span>
     </h1>
-    <div class="bg-surface border border-border rounded-lg p-5 mb-10 max-w-lg text-left text-base">
-      <div class="text-muted mb-1">$ reframe --input video.mp4 --codec hevc</div>
-      <div><span class="text-green">&#10003;</span> Encoded: 12.4 MB → <span class="text-accent">2.1 MB</span></div>
-      <div><span class="text-green">&#10003;</span> VMAF: 94.7 <span class="text-muted">(визуально идентично)</span></div>
-      <div><span class="text-green">&#10003;</span> Model: ESRGAN <span class="text-muted">artifact removal</span></div>
+
+    <p class="text-sm sm:text-base text-muted max-w-2xl mb-8 leading-relaxed">
+      Видеотрафик — это 80% всего интернета. Кодек HEVC сжимает видео, но при низком битрейте
+      появляются артефакты. Мы используем нейросеть <span class="text-accent">ESRGAN</span> для восстановления
+      качества после агрессивного сжатия — файл остаётся маленьким, а картинка выглядит как оригинал.
+    </p>
+
+    <div class="bg-surface border border-border rounded-lg p-5 mb-8 max-w-xl w-full text-left text-sm">
+      <div class="text-muted mb-2">$ reframe --input video.mp4 --codec hevc --ai esrgan</div>
+      <div class="space-y-1">
+        <div><span class="text-green">&#10003;</span> Encoded: 12.4 MB → <span class="text-accent">2.1 MB</span> <span class="text-muted">(6x compression)</span></div>
+        <div><span class="text-green">&#10003;</span> VMAF: <span class="text-red">45</span> → <span class="text-green">94.7</span> <span class="text-muted">(quality restored by AI)</span></div>
+        <div><span class="text-green">&#10003;</span> Model: ESRGAN RRDB-Net <span class="text-muted">(868 KB, runs in browser)</span></div>
+        <div><span class="text-green">&#10003;</span> Backend: TensorFlow.js + WebGL <span class="text-muted">(no server needed)</span></div>
+      </div>
     </div>
+
+    <!-- What's inside -->
+    <div class="max-w-2xl w-full grid sm:grid-cols-3 gap-3 mb-10 text-xs">
+      <div class="bg-surface border border-border rounded-lg p-3">
+        <p class="text-accent font-bold mb-1">Проблема</p>
+        <p class="text-muted">HEVC при 300 kbps даёт артефакты: блочность, размытие, banding. VMAF падает до 45.</p>
+      </div>
+      <div class="bg-surface border border-border rounded-lg p-3">
+        <p class="text-amber font-bold mb-1">Решение</p>
+        <p class="text-muted">ESRGAN (GAN-архитектура) восстанавливает высокочастотные детали покадрово прямо в браузере.</p>
+      </div>
+      <div class="bg-surface border border-border rounded-lg p-3">
+        <p class="text-green font-bold mb-1">Результат</p>
+        <p class="text-muted">Файл 2.1 MB вместо 12.4 MB. Визуальное качество на уровне оригинала. VMAF 94+.</p>
+      </div>
+    </div>
+
     <a href="#game" class="inline-flex items-center gap-2 px-6 py-3 bg-accent/10 border border-accent/30 text-accent text-base rounded-md hover:bg-accent/20 transition-colors">
-      Проверить самому
+      Попробовать
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
       </svg>
