@@ -39,6 +39,7 @@
       <div class="hidden sm:flex gap-5 text-xs text-muted">
         <a href="#game" class="hover:text-accent transition">test</a>
         <a href="#restore" class="hover:text-accent transition">restore</a>
+        <a href="#compare" class="hover:text-accent transition">compare</a>
         <a href="#slider" class="hover:text-accent transition">analysis</a>
         <a href="#how" class="hover:text-accent transition">pipeline</a>
         <a href="#ai-lab" class="hover:text-accent transition">lab</a>
@@ -105,7 +106,19 @@
     <div id="restore-container" class="w-full max-w-3xl"></div>
   </section>
 
-  <!-- SCREEN 3: SLIDER -->
+  <!-- SCREEN 3: COMPARE SLIDER -->
+  <section id="compare" class="min-h-screen flex flex-col items-center justify-center px-4 py-20 border-t border-border">
+    <p class="text-xs text-muted mb-3">// side-by-side</p>
+    <h2 class="text-xl sm:text-3xl font-bold text-center mb-3 font-['Inter']">
+      Drag-<span class="text-accent">сравнение</span>
+    </h2>
+    <p class="text-muted text-center mb-10 max-w-md text-xs">
+      Двигай ползунок. Слева — 200 kbps, справа — после AI обработки.
+    </p>
+    <div id="compare-container" class="w-full max-w-3xl"></div>
+  </section>
+
+  <!-- SCREEN 4: SLIDER -->
   <section id="slider" class="min-h-screen flex flex-col items-center justify-center px-4 py-20 border-t border-border">
     <p class="text-xs text-muted mb-3">// bitrate analysis</p>
     <h2 class="text-xl sm:text-3xl font-bold text-center mb-3 font-['Inter']">

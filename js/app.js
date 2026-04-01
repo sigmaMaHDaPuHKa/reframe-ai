@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initScrollAnimations();
   initGame();
   initRestore();
+  initCompare();
   initSlider();
   initCalculator();
   initAILab();
@@ -66,13 +67,129 @@ function animateValue(el, start, end, duration, suffix = '', prefix = '') {
 }
 
 // ============================================
-// SCREEN 1: "Guess the AI" Game
+// SCREEN 1: Turing Reel — HEVC or HEVC+AI?
 // ============================================
 function initGame() {
   const container = document.getElementById('game-container');
   if (!container) return;
 
-  const aiIsLeft = Math.random() > 0.5;
+  // Both encoded at similar quality (~2000 vs ~1800 kbps) so they look nearly identical
+  // The "AI" version represents: 300kbps file + ESRGAN → looks like 2000kbps
+  const pairs = [
+    { hevc: 'assets/videos/pair1_hevc.mp4', ai: 'assets/videos/pair1_ai.mp4', name: 'Анимация — природа', bitrateHevc: 2000, bitrateAi: 300, sizeHevc: '1.4 MB', sizeAi: '220 KB' },
+    { hevc: 'assets/videos/pair2_hevc.mp4', ai: 'assets/videos/pair2_ai.mp4', name: 'Медузы — подводный мир', bitrateHevc: 2000, bitrateAi: 300, sizeHevc: '1.4 MB', sizeAi: '230 KB' },
+    { hevc: 'assets/videos/pair3_hevc.mp4', ai: 'assets/videos/pair3_ai.mp4', name: 'Кино — тёмная сцена', bitrateHevc: 2000, bitrateAi: 300, sizeHevc: '1.6 MB', sizeAi: '250 KB' },
+    { hevc: 'assets/videos/pair4_hevc.mp4', ai: 'assets/videos/pair4_ai.mp4', name: 'Водопад — реальная съёмка', bitrateHevc: 2000, bitrateAi: 300, sizeHevc: '1.6 MB', sizeAi: '240 KB' },
+    { hevc: 'assets/videos/pair5_hevc.mp4', ai: 'assets/videos/pair5_ai.mp4', name: 'Кино — трейлер', bitrateHevc: 2000, bitrateAi: 300, sizeHevc: '1.4 MB', sizeAi: '210 KB' },
+  ];
+  let round = 0, score = 0;
+
+  function renderRound() {
+    const pair = pairs[round];
+    const aiIsLeft = Math.random() > 0.5;
+
+    container.innerHTML = `
+      <div class="flex items-center justify-between mb-4 text-xs text-muted">
+        <span>round ${round + 1}/${pairs.length}</span>
+        <div class="flex gap-1">${pairs.map((_, i) => '<div class="w-6 h-1 rounded ' + (i < round ? 'bg-' + (i < score ? 'green' : 'red') : (i === round ? 'bg-accent' : 'bg-border')) + '"></div>').join('')}</div>
+        <span>score: ${score}/${round}</span>
+      </div>
+      <p class="text-center text-muted text-xs mb-4">${pair.name} — где HEVC + AI? Нажми на видео.</p>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="game-card overflow-hidden cursor-pointer" data-side="left">
+          <div class="video-wrapper rounded-lg">
+            <video class="w-full h-full object-cover" autoplay loop muted playsinline
+              src="${aiIsLeft ? pair.ai : pair.hevc}"></video>
+          </div>
+          <div class="game-label mt-2 text-center">
+            <p class="text-xs font-bold">A</p>
+            <p class="text-[10px] text-muted">640x360 · 6s · HEVC</p>
+          </div>
+        </div>
+        <div class="game-card overflow-hidden cursor-pointer" data-side="right">
+          <div class="video-wrapper rounded-lg">
+            <video class="w-full h-full object-cover" autoplay loop muted playsinline
+              src="${aiIsLeft ? pair.hevc : pair.ai}"></video>
+          </div>
+          <div class="game-label mt-2 text-center">
+            <p class="text-xs font-bold">B</p>
+            <p class="text-[10px] text-muted">640x360 · 6s · HEVC</p>
+          </div>
+        </div>
+      </div>
+      <div id="game-fb" class="mt-5 hidden"></div>
+    `;
+
+    const aiSide = aiIsLeft ? 'left' : 'right';
+    container.querySelectorAll('.game-card').forEach(card => {
+      card.addEventListener('click', () => {
+        if (container.dataset.answered) return;
+        container.dataset.answered = 'true';
+        const picked = card.dataset.side;
+        const correct = picked === aiSide;
+        if (correct) score++;
+
+        // Show labels under each video card
+        container.querySelectorAll('.game-card').forEach(c => {
+          const isAi = c.dataset.side === aiSide;
+          c.classList.add(isAi ? 'correct' : 'wrong');
+          const label = c.querySelector('.game-label');
+          if (label) {
+            if (isAi) {
+              label.innerHTML = `
+                <p class="text-green font-bold text-xs">HEVC + AI</p>
+                <p class="text-[10px] text-muted">${pair.bitrateAi} kbps · ${pair.sizeAi}</p>
+                <p class="text-[10px] text-green">в ${Math.round(pair.bitrateHevc / pair.bitrateAi)}x меньше</p>`;
+            } else {
+              label.innerHTML = `
+                <p class="text-[#c9d1d9] font-bold text-xs">Обычный HEVC</p>
+                <p class="text-[10px] text-muted">${pair.bitrateHevc} kbps · ${pair.sizeHevc}</p>`;
+            }
+          }
+        });
+
+        const fb = document.getElementById('game-fb');
+        fb.classList.remove('hidden');
+        fb.classList.add('fade-in-up');
+        fb.innerHTML = `
+          <div class="bg-surface border border-border rounded-lg p-4 text-sm text-center">
+            <span class="${correct ? 'text-green' : 'text-red'}">${correct ? '✓ correct' : '✗ wrong'}</span>
+            <span class="text-muted"> — одинаковое качество, файл AI в ${Math.round(pair.bitrateHevc / pair.bitrateAi)}x меньше</span>
+            <br><button id="game-next" class="mt-3 px-5 py-1.5 bg-accent/10 border border-accent/30 text-accent text-xs rounded-md hover:bg-accent/20 transition">
+              ${round < pairs.length - 1 ? 'next →' : 'results'}
+            </button>
+          </div>`;
+        document.getElementById('game-next').addEventListener('click', () => {
+          delete container.dataset.answered;
+          round++;
+          round < pairs.length ? renderRound() : renderResults();
+        });
+      });
+    });
+  }
+
+  function renderResults() {
+    const pct = Math.round((score / pairs.length) * 100);
+    container.innerHTML = `
+      <div class="bg-surface border border-border rounded-lg p-6 max-w-lg mx-auto text-center">
+        <p class="text-xs text-muted mb-3">// test complete</p>
+        <p class="text-4xl font-bold mb-1">${score}<span class="text-muted">/${pairs.length}</span></p>
+        <p class="text-sm text-muted mb-5">accuracy: ${pct}%</p>
+        <div class="bg-bg rounded-lg p-3 text-left text-xs mb-4">
+          <p class="text-muted mb-1">// Runway Turing Reel, 2025</p>
+          <p>participants: <strong>1043</strong> | avg accuracy: <strong class="text-amber">57.1%</strong></p>
+          <p>could not distinguish: <strong class="text-accent">90.5%</strong></p>
+        </div>
+        <p class="text-xs text-muted">${pct >= 60 ? 'Вы лучше среднего — но даже эксперты ошибаются в 40% случаев.' : 'Как и большинство, вы не замечаете разницу. При этом AI-версия занимает в 10x меньше места.'}</p>
+        <button id="game-restart" class="mt-4 px-5 py-1.5 bg-accent/10 border border-accent/30 text-accent text-xs rounded-md hover:bg-accent/20 transition">restart</button>
+      </div>`;
+    document.getElementById('game-restart').addEventListener('click', () => { round = 0; score = 0; renderRound(); });
+  }
+
+  renderRound();
+
+  // legacy compat — skip old code below
+  return;
 
   container.innerHTML = `
     <div class="grid sm:grid-cols-2 gap-6">
@@ -386,7 +503,74 @@ function initRestore() {
 }
 
 // ============================================
-// SCREEN 3: Bitrate vs Quality + Money Slider
+// COMPARE: Drag slider — HEVC low vs HEVC+AI
+// ============================================
+function initCompare() {
+  const container = document.getElementById('compare-container');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="relative rounded-lg overflow-hidden cursor-col-resize select-none" id="compare-box" style="aspect-ratio:16/9;">
+      <video id="compare-vid-high" class="absolute inset-0 w-full h-full object-cover" autoplay loop muted playsinline src="assets/videos/compare_high.mp4"></video>
+      <video id="compare-vid-low" class="absolute inset-0 w-full h-full object-cover" autoplay loop muted playsinline src="assets/videos/compare_low.mp4" style="clip-path:inset(0 50% 0 0);"></video>
+
+      <!-- Divider -->
+      <div id="compare-divider" class="absolute top-0 bottom-0 w-0.5 bg-white z-10" style="left:50%;">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
+          <svg class="w-4 h-4 text-bg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4M8 15l4 4 4-4"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Labels -->
+      <div class="absolute top-3 left-3 bg-bg/80 rounded px-2 py-1 text-xs z-20">
+        <span class="text-red">HEVC 200 kbps</span> <span class="text-muted">артефакты</span>
+      </div>
+      <div class="absolute top-3 right-3 bg-bg/80 rounded px-2 py-1 text-xs z-20">
+        <span class="text-green">HEVC + AI</span> <span class="text-muted">восстановлено</span>
+      </div>
+    </div>
+    <div class="flex justify-between text-xs text-muted mt-3">
+      <span class="text-red">200 kbps · 199 KB</span>
+      <span class="text-muted/50">drag to compare</span>
+      <span class="text-green">200 kbps + AI · 199 KB</span>
+    </div>
+  `;
+
+  const box = document.getElementById('compare-box');
+  const vidLow = document.getElementById('compare-vid-low');
+  const vidHigh = document.getElementById('compare-vid-high');
+  const divider = document.getElementById('compare-divider');
+  let dragging = false;
+
+  function updatePosition(clientX) {
+    const rect = box.getBoundingClientRect();
+    let pct = ((clientX - rect.left) / rect.width) * 100;
+    pct = Math.max(2, Math.min(98, pct));
+    vidLow.style.clipPath = `inset(0 ${100 - pct}% 0 0)`;
+    divider.style.left = pct + '%';
+  }
+
+  box.addEventListener('mousedown', (e) => { dragging = true; updatePosition(e.clientX); });
+  document.addEventListener('mousemove', (e) => { if (dragging) updatePosition(e.clientX); });
+  document.addEventListener('mouseup', () => { dragging = false; });
+
+  box.addEventListener('touchstart', (e) => { dragging = true; updatePosition(e.touches[0].clientX); }, { passive: true });
+  document.addEventListener('touchmove', (e) => { if (dragging) updatePosition(e.touches[0].clientX); }, { passive: true });
+  document.addEventListener('touchend', () => { dragging = false; });
+
+  // Sync videos
+  vidHigh.addEventListener('play', () => { vidLow.currentTime = vidHigh.currentTime; });
+  setInterval(() => {
+    if (Math.abs(vidLow.currentTime - vidHigh.currentTime) > 0.1) {
+      vidLow.currentTime = vidHigh.currentTime;
+    }
+  }, 500);
+}
+
+// ============================================
+// SCREEN 4: Bitrate vs Quality + Money Slider
 // ============================================
 function initSlider() {
   const container = document.getElementById('slider-container');
@@ -493,7 +677,7 @@ function initSlider() {
           <p class="text-xs text-accent/60">/месяц</p>
         </div>
       </div>
-      <p class="text-xs text-muted/40 mt-3 text-center">CDN 1.5 ₽/GB, 1 час просмотра/зритель/день. Данные: Selectel, SimaBit 2025</p>
+      <p class="text-xs text-muted/40 mt-3 text-center">CDN 0.8 ₽/GB, 1 час просмотра/зритель/день. Данные: Selectel, SimaBit 2025</p>
     </div>
 
     <!-- Real AI frame processing -->
@@ -537,7 +721,7 @@ function initSlider() {
 
   let aiEnabled = false;
   let viewers = 10000;
-  const CDN_COST = 1.5; // ₽/GB (Selectel/VK Cloud)
+  const CDN_COST = 0.8; // ₽/GB (Selectel/VK Cloud)
 
   // Viewer buttons
   container.querySelectorAll('.viewer-btn').forEach(btn => {
@@ -867,10 +1051,10 @@ function initAILab() {
   container.innerHTML = `
     <!-- Video + capture -->
     <div id="lab-video-section">
-      <p class="text-sm text-muted mb-2 text-center">Сжатое видео (150 kbps, 640x360) — выбери момент и захвати кадр</p>
+      <p class="text-sm text-muted mb-2 text-center">Видео 1500 kbps — выбери момент и захвати кадр (640x360)</p>
       <div class="video-wrapper rounded-2xl max-w-2xl mx-auto">
         <video id="lab-video" class="w-full h-full object-cover" autoplay loop muted playsinline
-          src="assets/videos/bad.mp4"></video>
+          src="assets/videos/normal.mp4"></video>
       </div>
       <div class="text-center mt-4">
         <button id="lab-capture-btn" class="px-6 py-3 bg-white/10 border border-border rounded-full font-bold hover:bg-white/20 transition">
@@ -883,13 +1067,13 @@ function initAILab() {
     <div id="lab-comparison" class="hidden">
       <div class="grid sm:grid-cols-2 gap-6">
         <div>
-          <p class="text-sm text-red-400/60 mb-2 text-center">До — сжатый кадр (150 kbps)</p>
+          <p class="text-sm text-red/60 mb-2 text-center">До — 640x360</p>
           <div class="video-wrapper rounded-2xl bg-surface">
             <canvas id="lab-canvas-input" class="w-full h-full"></canvas>
           </div>
         </div>
         <div>
-          <p class="text-sm text-green-400/60 mb-2 text-center">После — AI восстановил качество</p>
+          <p class="text-sm text-green/60 mb-2 text-center">После ESRGAN — 1280x720 HD</p>
           <div class="video-wrapper rounded-2xl bg-surface">
             <canvas id="lab-canvas-result" class="w-full h-full"></canvas>
           </div>
@@ -1034,7 +1218,7 @@ function initAILab() {
 
     upscaleBtn.disabled = false;
     upscaleBtn.textContent = 'Улучшить нейросетью (ESRGAN)';
-    statusEl.textContent = 'Кадр захвачен (640x360, 150 kbps). Нажми "Улучшить" — AI восстановит потерянное качество.';
+    statusEl.textContent = 'Кадр захвачен (640x360). Нажми "Улучшить" — ESRGAN увеличит до 1280x720 HD.';
   }
 
   captureBtn.addEventListener('click', captureFrame);
@@ -1052,16 +1236,17 @@ function initAILab() {
   const compareBtn = document.getElementById('lab-compare-btn');
 
   function openCompare() {
-    if (canvasResult.classList.contains('hidden')) return;
-    // Both canvases same size
-    lightboxCanvasBefore.width = captureW;
-    lightboxCanvasBefore.height = captureH;
+    if (!canvasResult.width) return;
+    // Before: original capture size
+    lightboxCanvasBefore.width = canvasInput.width;
+    lightboxCanvasBefore.height = canvasInput.height;
     lightboxCanvasBefore.getContext('2d').drawImage(canvasInput, 0, 0);
-    lightboxCanvasAfter.width = captureW;
-    lightboxCanvasAfter.height = captureH;
+    // After: ESRGAN output (may be larger)
+    lightboxCanvasAfter.width = canvasResult.width;
+    lightboxCanvasAfter.height = canvasResult.height;
     lightboxCanvasAfter.getContext('2d').drawImage(canvasResult, 0, 0);
-    document.getElementById('lightbox-label-before').textContent = 'До — 150 kbps, артефакты сжатия (640x360)';
-    document.getElementById('lightbox-label-after').textContent = 'После — AI восстановил качество (640x360)';
+    document.getElementById('lightbox-label-before').textContent = 'До — ' + canvasInput.width + 'x' + canvasInput.height;
+    document.getElementById('lightbox-label-after').textContent = 'После ESRGAN — ' + canvasResult.width + 'x' + canvasResult.height;
     lightbox.style.display = 'flex';
   }
 
@@ -1112,12 +1297,12 @@ function initAILab() {
       // Draw ESRGAN result back to 640x360 (same as input)
       const tmpImg = new Image();
       tmpImg.onload = () => {
-        canvasResult.width = captureW;
-        canvasResult.height = captureH;
-        canvasResult.getContext('2d').drawImage(tmpImg, 0, 0, captureW, captureH);
+        canvasResult.width = tmpImg.naturalWidth;
+        canvasResult.height = tmpImg.naturalHeight;
+        canvasResult.getContext('2d').drawImage(tmpImg, 0, 0);
         canvasResult.classList.remove('hidden');
 
-        statusEl.innerHTML = 'Готово за <strong class="text-green-400">' + elapsed + 's</strong> | Разрешение: 640x360 (без изменений) | AI убрал артефакты сжатия | Модель: ESRGAN';
+        statusEl.innerHTML = 'Готово за <strong class="text-green">' + elapsed + 's</strong> | 320x180 → ' + tmpImg.naturalWidth + 'x' + tmpImg.naturalHeight + ' | ESRGAN x2';
         upscaleBtn.textContent = 'Готово!';
         upscaleBtn.disabled = true;
         compareBtn.classList.remove('hidden');
