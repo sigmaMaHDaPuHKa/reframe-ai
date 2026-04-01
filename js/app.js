@@ -480,7 +480,7 @@ function initSlider() {
           <p class="text-xs text-purple-400/60">/месяц</p>
         </div>
       </div>
-      <p class="text-xs text-white/15 mt-3 text-center">CDN 3 ₽/GB, 1 час просмотра/зритель/день. Данные: Selectel, SimaBit 2025</p>
+      <p class="text-xs text-white/15 mt-3 text-center">CDN 1.5 ₽/GB, 1 час просмотра/зритель/день. Данные: Selectel, SimaBit 2025</p>
     </div>
 
     <!-- Real AI frame processing -->
@@ -524,7 +524,7 @@ function initSlider() {
 
   let aiEnabled = false;
   let viewers = 10000;
-  const CDN_COST = 3.0; // ₽/GB (Selectel/VK Cloud)
+  const CDN_COST = 1.5; // ₽/GB (Selectel/VK Cloud)
 
   // Viewer buttons
   container.querySelectorAll('.viewer-btn').forEach(btn => {
@@ -864,9 +864,8 @@ function initAILab() {
         </div>
         <div>
           <p class="text-sm text-green-400/60 mb-2 text-center">После — AI восстановил качество</p>
-          <div class="video-wrapper rounded-2xl flex items-center justify-center bg-black/50">
-            <p class="text-white/20 text-sm" id="lab-placeholder">Нажми "Улучшить"</p>
-            <canvas id="lab-canvas-result" class="w-full h-full hidden"></canvas>
+          <div class="video-wrapper rounded-2xl bg-black/50">
+            <canvas id="lab-canvas-result" class="w-full h-full"></canvas>
           </div>
         </div>
       </div>
@@ -962,7 +961,6 @@ function initAILab() {
   const recaptureBtn = document.getElementById('lab-recapture-btn');
   const canvasInput = document.getElementById('lab-canvas-input');
   const canvasResult = document.getElementById('lab-canvas-result');
-  const placeholder = document.getElementById('lab-placeholder');
   const statusEl = document.getElementById('lab-status');
   const progress = document.getElementById('lab-progress');
   const progressBar = document.getElementById('lab-progress-bar');
@@ -1003,8 +1001,8 @@ function initAILab() {
     comparison.classList.add('fade-in-up');
 
     // Reset result side
-    placeholder.classList.remove('hidden');
-    canvasResult.classList.add('hidden');
+    canvasResult.width = captureW;
+    canvasResult.height = captureH;
     document.getElementById('lab-metrics').classList.add('hidden');
     compareBtn.classList.add('hidden');
 
@@ -1092,7 +1090,6 @@ function initAILab() {
         canvasResult.height = captureH;
         canvasResult.getContext('2d').drawImage(tmpImg, 0, 0, captureW, captureH);
         canvasResult.classList.remove('hidden');
-        placeholder.classList.add('hidden');
 
         statusEl.innerHTML = 'Готово за <strong class="text-green-400">' + elapsed + 's</strong> | Разрешение: 640x360 (без изменений) | AI убрал артефакты сжатия | Модель: ESRGAN';
         upscaleBtn.textContent = 'Готово!';
