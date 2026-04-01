@@ -635,16 +635,42 @@ function initSlider() {
       <p class="text-center text-muted/50 text-xs mt-1">kbps</p>
     </div>
 
-    <!-- Quality bar -->
-    <div class="mt-6 bg-surface rounded-2xl p-5">
-      <div class="flex items-center justify-between mb-2">
-        <span class="text-sm text-muted">Качество (VMAF)</span>
-        <span id="quality-percent" class="text-sm font-bold text-red-400">32</span>
+    <!-- VMAF slider full width -->
+    <div class="mt-6 mb-2 flex items-center gap-4">
+      <span class="text-sm text-muted shrink-0">VMAF</span>
+      <div class="flex-1">
+        <input id="vmaf-slider" type="range" min="32" max="98" value="32" class="vmaf-slider">
       </div>
-      <div class="h-3 bg-white/10 rounded-full overflow-hidden">
-        <div id="quality-bar" class="h-full rounded-full transition-all duration-500 bg-gradient-to-r from-red-500 via-yellow-500 to-green-500" style="width: 32%"></div>
+      <span id="quality-percent" class="text-3xl font-bold text-red-400 tabular-nums transition-colors duration-300 w-12 text-right shrink-0">32</span>
+    </div>
+
+    <!-- Quality panel -->
+    <div class="bg-surface rounded-xl p-5 border border-border">
+      <!-- VMAF scale reference -->
+      <div class="grid grid-cols-4 gap-2 mb-4" id="vmaf-scale">
+        <div class="vmaf-zone rounded-lg p-2 text-center border-2 border-transparent transition-all duration-300" data-min="0" data-max="40">
+          <p class="text-lg font-bold text-red">0-40</p>
+          <p class="text-[10px] text-muted">Непригодно</p>
+          <p class="text-[9px] text-red/50">сильные артефакты</p>
+        </div>
+        <div class="vmaf-zone rounded-lg p-2 text-center border-2 border-transparent transition-all duration-300" data-min="40" data-max="70">
+          <p class="text-lg font-bold text-amber">40-70</p>
+          <p class="text-[10px] text-muted">Низкое</p>
+          <p class="text-[9px] text-amber/50">заметные потери</p>
+        </div>
+        <div class="vmaf-zone rounded-lg p-2 text-center border-2 border-transparent transition-all duration-300" data-min="70" data-max="90">
+          <p class="text-lg font-bold text-green">70-90</p>
+          <p class="text-[10px] text-muted">Хорошее</p>
+          <p class="text-[9px] text-green/50">стриминг стандарт</p>
+        </div>
+        <div class="vmaf-zone rounded-lg p-2 text-center border-2 border-transparent transition-all duration-300" data-min="90" data-max="100">
+          <p class="text-lg font-bold text-accent">90-100</p>
+          <p class="text-[10px] text-muted">Отличное</p>
+          <p class="text-[9px] text-accent/50">неотличимо</p>
+        </div>
       </div>
-      <p id="quality-hint" class="text-xs text-muted/50 mt-2 text-center">Включи AI и сравни разницу</p>
+
+      <p id="quality-hint" class="text-xs text-accent/60 mt-2 text-center">Включи AI и сравни разницу</p>
     </div>
 
     <!-- MONEY SAVINGS CARD -->
@@ -677,7 +703,7 @@ function initSlider() {
           <p class="text-xs text-accent/60">/месяц</p>
         </div>
       </div>
-      <p class="text-xs text-muted/40 mt-3 text-center">CDN 0.8 ₽/GB, 1 час просмотра/зритель/день. Данные: Selectel, SimaBit 2025</p>
+      <p class="text-xs text-muted/40 mt-3 text-center">CDN 0.5 ₽/GB, 1 час/зритель/день, AI снижает трафик на 15%. Данные: Selectel, SimaBit 2025</p>
     </div>
 
     <!-- Real AI frame processing -->
@@ -710,8 +736,9 @@ function initSlider() {
   const displayBitrate = document.getElementById('display-bitrate');
   const displaySize = document.getElementById('display-size');
   const displayQuality = document.getElementById('display-quality');
-  const qualityBar = document.getElementById('quality-bar');
   const qualityPercent = document.getElementById('quality-percent');
+  const vmafSlider = document.getElementById('vmaf-slider');
+  const vmafZones = document.querySelectorAll('.vmaf-zone');
   const qualityHint = document.getElementById('quality-hint');
   const labelAI = document.getElementById('label-ai');
   const labelNoAI = document.getElementById('label-no-ai');
@@ -721,7 +748,7 @@ function initSlider() {
 
   let aiEnabled = false;
   let viewers = 10000;
-  const CDN_COST = 0.8; // ₽/GB (Selectel/VK Cloud)
+  const CDN_COST = 0.5; // ₽/GB (Selectel/VK Cloud)
 
   // Viewer buttons
   container.querySelectorAll('.viewer-btn').forEach(btn => {
@@ -744,6 +771,20 @@ function initSlider() {
   });
 
   slider.addEventListener('input', updateSlider);
+
+  // VMAF slider drives bitrate slider — find closest step
+  vmafSlider.addEventListener('input', () => {
+    const target = parseInt(vmafSlider.value);
+    let bestIdx = 0;
+    let bestDiff = Infinity;
+    steps.forEach((step, i) => {
+      const q = aiEnabled ? step.qualityAI : step.qualityNormal;
+      const diff = Math.abs(q - target);
+      if (diff < bestDiff) { bestDiff = diff; bestIdx = i; }
+    });
+    slider.value = bestIdx;
+    updateSlider();
+  });
 
   function formatMoney(n) {
     if (n >= 1000000) return (n / 1000000).toFixed(1) + ' млн ₽';
@@ -770,22 +811,37 @@ function initSlider() {
     displayBitrate.textContent = step.bitrate + ' kbps';
     displaySize.textContent = size + ' MB';
     displayQuality.textContent = quality;
-    qualityBar.style.width = quality + '%';
     qualityPercent.textContent = quality;
+
+    // Update VMAF slider
+    vmafSlider.value = quality;
 
     // Color coding
     let colorClass;
-    if (quality >= 85) colorClass = 'text-green-400';
-    else if (quality >= 60) colorClass = 'text-yellow-400';
-    else colorClass = 'text-red-400';
+    if (quality >= 85) colorClass = 'text-green';
+    else if (quality >= 60) colorClass = 'text-amber';
+    else colorClass = 'text-red';
     displayQuality.className = `text-base sm:text-lg font-bold ${colorClass}`;
-    qualityPercent.className = `text-sm font-bold ${colorClass}`;
+    qualityPercent.className = `text-3xl font-bold tabular-nums transition-colors duration-300 ${colorClass}`;
+
+    // Highlight active VMAF zone
+    const zoneColors = { 0: '#f85149', 40: '#d29922', 70: '#3fb950', 90: '#58a6ff' };
+    vmafZones.forEach(zone => {
+      const min = parseInt(zone.dataset.min);
+      const max = parseInt(zone.dataset.max);
+      const active = quality >= min && quality < max;
+      const color = zoneColors[min];
+      zone.style.opacity = '1';
+      zone.style.transform = active ? 'scale(1.06)' : 'scale(1)';
+      zone.style.borderColor = active ? color : 'transparent';
+      zone.style.boxShadow = active ? '0 0 24px ' + color + '33' : 'none';
+    });
 
     // Money calculation
     // GB per hour = bitrate(kbps) * 3600 / 8 / 1024 / 1024 ≈ bitrate * 0.00042
     const gbPerHourNormal = step.bitrate * 0.000439;
     // AI version: same quality at ~22-26% less bitrate (SimaBit data)
-    const aiReductionFactor = 0.76; // 24% reduction
+    const aiReductionFactor = 0.85; // 15% reduction
     const gbPerHourAI = gbPerHourNormal * aiReductionFactor;
 
     // Monthly: viewers * 30 days * 1 hour/day
@@ -804,7 +860,7 @@ function initSlider() {
       qualityHint.textContent = 'Включи AI — качество вырастет без увеличения размера';
       qualityHint.className = 'text-xs text-accent/60 mt-2 text-center';
     } else if (aiEnabled) {
-      qualityHint.textContent = `AI: +${step.qualityAI - step.qualityNormal} VMAF при том же битрейте | экономия ${formatMoney(monthlySavings)}/мес`;
+      qualityHint.textContent = `AI: +${step.qualityAI - step.qualityNormal} VMAF при том же битрейте | экономия ${formatMoney(monthlySavings)}/мес (${viewers.toLocaleString('ru-RU')} зрителей)`;
       qualityHint.className = 'text-xs text-green-400/60 mt-2 text-center';
     } else {
       qualityHint.textContent = '';
@@ -1128,23 +1184,132 @@ function initAILab() {
       </div>
     </div>
 
-    <!-- Architecture info -->
-    <div class="mt-8 bg-surface rounded-2xl p-6 border border-border">
-      <h4 class="font-bold text-sm text-muted mb-4 text-center">Архитектура</h4>
-      <div class="flex items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm flex-wrap">
-        <span class="bg-red-500/20 text-red-400 px-3 py-1.5 rounded-lg">Кадр 150 kbps</span>
-        <span class="text-muted/70">&rarr;</span>
-        <span class="bg-accent/10 text-accent px-3 py-1.5 rounded-lg">ESRGAN (удаление артефактов)</span>
-        <span class="text-muted/70">&rarr;</span>
-        <span class="bg-blue-500/20 text-blue-400 px-3 py-1.5 rounded-lg">TensorFlow.js</span>
-        <span class="text-muted/70">&rarr;</span>
-        <span class="bg-green-500/20 text-green-400 px-3 py-1.5 rounded-lg">WebGL/GPU</span>
-        <span class="text-muted/70">&rarr;</span>
-        <span class="bg-green/10 text-green px-3 py-1.5 rounded-lg">Чистый кадр</span>
+    <!-- Architecture diagram -->
+    <div class="mt-10 bg-surface rounded-lg border border-border p-6 sm:p-8 relative overflow-hidden">
+      <!-- Background abstract shapes -->
+      <div class="absolute top-0 right-0 w-64 h-64 bg-accent/[0.02] rounded-full blur-3xl"></div>
+      <div class="absolute bottom-0 left-0 w-48 h-48 bg-green/[0.02] rounded-full blur-3xl"></div>
+
+      <h4 class="font-bold text-sm text-center mb-8 relative z-10">Inference Pipeline</h4>
+
+      <!-- Main flow -->
+      <div class="relative z-10 flex items-start justify-center gap-2 sm:gap-3">
+
+        <!-- Block: Compressed Frame -->
+        <div class="flex flex-col items-center w-28 sm:w-32">
+          <div class="w-full aspect-square rounded-xl border-2 border-red/30 bg-red/[0.04] flex flex-col items-center justify-center p-3 hover:border-red/50 transition-colors">
+            <svg class="w-8 h-8 text-red mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h1.5C5.496 19.5 6 18.996 6 18.375m-2.625 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125m18.375 2.625V5.625m0 12.75c0 .621-.504 1.125-1.125 1.125m1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125m0 3.75h-1.5A1.125 1.125 0 0118 18.375M20.625 4.5H3.375m17.25 0c.621 0 1.125.504 1.125 1.125M20.625 4.5h-1.5C18.504 4.5 18 5.004 18 5.625m3.75 0v1.5c0 .621-.504 1.125-1.125 1.125M3.375 4.5c-.621 0-1.125.504-1.125 1.125M3.375 4.5h1.5C5.496 4.5 6 5.004 6 5.625m-2.625 0v1.5c0 .621.504 1.125 1.125 1.125"/>
+            </svg>
+            <span class="text-[10px] text-red font-bold">INPUT</span>
+          </div>
+          <div class="mt-2 text-center">
+            <p class="text-xs font-bold text-red">Сжатый кадр</p>
+            <p class="text-[10px] text-muted">300 kbps, HEVC</p>
+            <p class="text-[10px] text-red/60">VMAF 45</p>
+          </div>
+        </div>
+
+        <!-- Arrow 1 -->
+        <div class="flex flex-col items-center justify-center pt-8 sm:pt-10">
+          <svg class="w-10 h-6 text-border" viewBox="0 0 40 24" fill="none">
+            <line x1="0" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/>
+            <path d="M28 6l8 6-8 6" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="text-[8px] text-muted mt-0.5">decode</span>
+        </div>
+
+        <!-- Block: ESRGAN -->
+        <div class="flex flex-col items-center w-36 sm:w-44">
+          <div class="w-full aspect-[4/3] rounded-xl border-2 border-accent/40 bg-accent/[0.04] flex flex-col items-center justify-center p-3 shadow-[0_0_30px_rgba(88,166,255,0.08)] hover:shadow-[0_0_40px_rgba(88,166,255,0.15)] hover:border-accent/60 transition-all">
+            <svg class="w-10 h-10 text-accent mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/>
+            </svg>
+            <span class="text-xs text-accent font-bold">ESRGAN</span>
+            <span class="text-[9px] text-muted">RRDB-Net</span>
+          </div>
+          <!-- Sub-components -->
+          <div class="flex gap-2 mt-2">
+            <div class="bg-bg border border-border rounded px-2 py-1 text-[9px] text-muted">Generator</div>
+            <div class="bg-bg border border-border rounded px-2 py-1 text-[9px] text-muted">Discriminator</div>
+          </div>
+          <p class="text-[10px] text-muted mt-1">23 RRDB blocks, 868 KB</p>
+        </div>
+
+        <!-- Arrow 2 -->
+        <div class="flex flex-col items-center justify-center pt-8 sm:pt-10">
+          <svg class="w-10 h-6 text-border" viewBox="0 0 40 24" fill="none">
+            <line x1="0" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/>
+            <path d="M28 6l8 6-8 6" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="text-[8px] text-muted mt-0.5">render</span>
+        </div>
+
+        <!-- Block: TF.js -->
+        <div class="flex flex-col items-center w-28 sm:w-32">
+          <div class="w-full aspect-square rounded-xl border-2 border-amber/30 bg-amber/[0.04] flex flex-col items-center justify-center p-3 hover:border-amber/50 transition-colors">
+            <svg class="w-8 h-8 text-amber mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25z"/>
+            </svg>
+            <span class="text-[10px] text-amber font-bold">TF.js</span>
+          </div>
+          <div class="mt-2 text-center">
+            <p class="text-xs font-bold text-amber">Runtime</p>
+            <p class="text-[10px] text-muted">WebGL 2.0</p>
+            <p class="text-[10px] text-muted">GPU клиента</p>
+          </div>
+        </div>
+
+        <!-- Arrow 3 -->
+        <div class="flex flex-col items-center justify-center pt-8 sm:pt-10">
+          <svg class="w-10 h-6" viewBox="0 0 40 24" fill="none">
+            <line x1="0" y1="12" x2="30" y2="12" stroke="#3fb950" stroke-width="1.5" stroke-dasharray="4 3"/>
+            <path d="M28 6l8 6-8 6" stroke="#3fb950" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="text-[8px] text-green mt-0.5">output</span>
+        </div>
+
+        <!-- Block: Output -->
+        <div class="flex flex-col items-center w-28 sm:w-32">
+          <div class="w-full aspect-square rounded-xl border-2 border-green/40 bg-green/[0.04] flex flex-col items-center justify-center p-3 hover:border-green/60 hover:shadow-[0_0_20px_rgba(63,185,80,0.1)] transition-all">
+            <svg class="w-8 h-8 text-green mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span class="text-[10px] text-green font-bold">CLEAN</span>
+          </div>
+          <div class="mt-2 text-center">
+            <p class="text-xs font-bold text-green">Результат</p>
+            <p class="text-[10px] text-muted">300 kbps файл</p>
+            <p class="text-[10px] text-green">VMAF 94</p>
+          </div>
+        </div>
+
       </div>
-      <p class="text-xs text-muted/50 mt-4 text-center">
-        ESRGAN анализирует артефакты сжатия (блочность, размытие, шум) и восстанавливает потерянные детали. Работает в браузере через TensorFlow.js — без сервера, без облака.
-      </p>
+
+      <!-- Bottom specs bar -->
+      <div class="relative z-10 mt-8 bg-bg rounded-lg border border-border p-4 grid grid-cols-4 gap-4 text-center text-xs">
+        <div>
+          <p class="text-muted mb-1">Модель</p>
+          <p class="text-accent font-bold">RRDB-Net</p>
+          <p class="text-[10px] text-muted">868 KB weights</p>
+        </div>
+        <div>
+          <p class="text-muted mb-1">Inference</p>
+          <p class="text-amber font-bold">~5-15s</p>
+          <p class="text-[10px] text-muted">per frame, GPU</p>
+        </div>
+        <div>
+          <p class="text-muted mb-1">Backend</p>
+          <p class="text-[#c9d1d9] font-bold">WebGL 2.0</p>
+          <p class="text-[10px] text-muted">client-side</p>
+        </div>
+        <div>
+          <p class="text-muted mb-1">Сервер</p>
+          <p class="text-green font-bold">Не нужен</p>
+          <p class="text-[10px] text-muted">всё в браузере</p>
+        </div>
+      </div>
+
     </div>
 
     <!-- Fullscreen comparison overlay -->
