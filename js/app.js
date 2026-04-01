@@ -723,7 +723,14 @@ function initAILab() {
         <video id="lab-video" class="w-full h-full object-cover" autoplay loop muted playsinline
           src="assets/videos/bad.mp4"></video>
       </div>
-      <div class="text-center mt-4">
+      <!-- Resolution selector -->
+      <div class="flex items-center justify-center gap-3 mt-4">
+        <span class="text-xs text-white/40">Разрешение:</span>
+        <button class="res-btn px-3 py-1.5 rounded-full text-xs border border-purple-400 text-purple-400 font-bold" data-w="480" data-h="270">480x270 → 960x540</button>
+        <button class="res-btn px-3 py-1.5 rounded-full text-xs border border-white/20 text-white/50 hover:border-purple-400 hover:text-purple-400 transition" data-w="640" data-h="360">640x360 → 1280x720</button>
+        <button class="res-btn px-3 py-1.5 rounded-full text-xs border border-white/20 text-white/50 hover:border-purple-400 hover:text-purple-400 transition" data-w="960" data-h="540">960x540 → 1920x1080</button>
+      </div>
+      <div class="text-center mt-3">
         <button id="lab-capture-btn" class="px-6 py-3 bg-white/10 border border-white/20 rounded-full font-bold hover:bg-white/20 transition">
           Захватить кадр
         </button>
@@ -827,6 +834,20 @@ function initAILab() {
   const progressBar = document.getElementById('lab-progress-bar');
 
   let upscaler = null;
+  let captureW = 480;
+  let captureH = 270;
+
+  // Resolution buttons
+  container.querySelectorAll('.res-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      container.querySelectorAll('.res-btn').forEach(b => {
+        b.className = 'res-btn px-3 py-1.5 rounded-full text-xs border border-white/20 text-white/50 hover:border-purple-400 hover:text-purple-400 transition';
+      });
+      btn.className = 'res-btn px-3 py-1.5 rounded-full text-xs border border-purple-400 text-purple-400 font-bold';
+      captureW = parseInt(btn.dataset.w);
+      captureH = parseInt(btn.dataset.h);
+    });
+  });
 
   // Init upscaler
   if (typeof Upscaler !== 'undefined') {
@@ -849,12 +870,10 @@ function initAILab() {
   }
 
   function captureFrame() {
-    const w = 640;
-    const h = 360;
-    canvasInput.width = w;
-    canvasInput.height = h;
+    canvasInput.width = captureW;
+    canvasInput.height = captureH;
     const ctx = canvasInput.getContext('2d');
-    ctx.drawImage(video, 0, 0, w, h);
+    ctx.drawImage(video, 0, 0, captureW, captureH);
 
     // Hide video, show comparison
     videoSection.classList.add('hidden');
@@ -864,10 +883,11 @@ function initAILab() {
     // Reset result side
     placeholder.classList.remove('hidden');
     resultImg.classList.add('hidden');
+    document.getElementById('lab-metrics').classList.add('hidden');
 
     upscaleBtn.disabled = false;
     upscaleBtn.textContent = 'Улучшить нейросетью (ESRGAN)';
-    statusEl.textContent = 'Кадр захвачен (' + w + 'x' + h + '). Нажми "Улучшить".';
+    statusEl.textContent = 'Кадр захвачен (' + captureW + 'x' + captureH + ' → ' + (captureW*2) + 'x' + (captureH*2) + '). Нажми "Улучшить".';
   }
 
   captureBtn.addEventListener('click', captureFrame);
@@ -917,7 +937,7 @@ function initAILab() {
       resultImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
       placeholder.classList.add('hidden');
 
-      statusEl.innerHTML = 'Готово за <strong class="text-green-400">' + elapsed + 's</strong> | Вход: 640x360 → Выход: 1280x720 (HD) | Модель: ESRGAN x2';
+      statusEl.innerHTML = 'Готово за <strong class="text-green-400">' + elapsed + 's</strong> | Вход: ' + captureW + 'x' + captureH + ' → Выход: ' + (captureW*2) + 'x' + (captureH*2) + ' | Модель: ESRGAN x2';
       upscaleBtn.textContent = 'Готово!';
       upscaleBtn.disabled = true;
 
