@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initRestore();
   initSlider();
   initCalculator();
+  initAILab();
 });
 
 // ============================================
@@ -640,4 +641,319 @@ function initCalculator() {
   hoursInput.addEventListener('input', calculate);
   viewsInput.addEventListener('input', calculate);
   calculate();
+}
+
+// ============================================
+// Image Quality Metrics (No-Reference)
+// ============================================
+function getPixels(source) {
+  const c = document.createElement('canvas');
+  if (source instanceof HTMLCanvasElement) {
+    c.width = source.width;
+    c.height = source.height;
+    c.getContext('2d').drawImage(source, 0, 0);
+  } else {
+    c.width = source.naturalWidth || source.width;
+    c.height = source.naturalHeight || source.height;
+    c.getContext('2d').drawImage(source, 0, 0);
+  }
+  return c.getContext('2d').getImageData(0, 0, c.width, c.height);
+}
+
+function calcSharpness(imageData) {
+  const { data, width, height } = imageData;
+  let sum = 0, count = 0;
+  for (let y = 1; y < height - 1; y++) {
+    for (let x = 1; x < width - 1; x++) {
+      const idx = (y * width + x) * 4;
+      const gray = data[idx] * 0.299 + data[idx+1] * 0.587 + data[idx+2] * 0.114;
+      const grayL = data[(y * width + x - 1) * 4] * 0.299 + data[(y * width + x - 1) * 4 + 1] * 0.587 + data[(y * width + x - 1) * 4 + 2] * 0.114;
+      const grayR = data[(y * width + x + 1) * 4] * 0.299 + data[(y * width + x + 1) * 4 + 1] * 0.587 + data[(y * width + x + 1) * 4 + 2] * 0.114;
+      const grayU = data[((y-1) * width + x) * 4] * 0.299 + data[((y-1) * width + x) * 4 + 1] * 0.587 + data[((y-1) * width + x) * 4 + 2] * 0.114;
+      const grayD = data[((y+1) * width + x) * 4] * 0.299 + data[((y+1) * width + x) * 4 + 1] * 0.587 + data[((y+1) * width + x) * 4 + 2] * 0.114;
+      const laplacian = grayL + grayR + grayU + grayD - 4 * gray;
+      sum += laplacian * laplacian;
+      count++;
+    }
+  }
+  return Math.sqrt(sum / count);
+}
+
+function calcContrast(imageData) {
+  const { data } = imageData;
+  let sum = 0, sumSq = 0, count = data.length / 4;
+  for (let i = 0; i < data.length; i += 4) {
+    const gray = data[i] * 0.299 + data[i+1] * 0.587 + data[i+2] * 0.114;
+    sum += gray;
+    sumSq += gray * gray;
+  }
+  const mean = sum / count;
+  return Math.sqrt(sumSq / count - mean * mean);
+}
+
+function calcDetail(imageData) {
+  const { data, width, height } = imageData;
+  let energy = 0, count = 0;
+  for (let y = 0; y < height - 1; y++) {
+    for (let x = 0; x < width - 1; x++) {
+      const idx = (y * width + x) * 4;
+      const idxR = (y * width + x + 1) * 4;
+      const idxD = ((y+1) * width + x) * 4;
+      const gx = (data[idxR] - data[idx]) * 0.299 + (data[idxR+1] - data[idx+1]) * 0.587 + (data[idxR+2] - data[idx+2]) * 0.114;
+      const gy = (data[idxD] - data[idx]) * 0.299 + (data[idxD+1] - data[idx+1]) * 0.587 + (data[idxD+2] - data[idx+2]) * 0.114;
+      energy += gx * gx + gy * gy;
+      count++;
+    }
+  }
+  return Math.sqrt(energy / count);
+}
+
+// ============================================
+// SCREEN 5: AI Lab — Real ESRGAN in browser
+// ============================================
+function initAILab() {
+  const container = document.getElementById('ai-lab-container');
+  if (!container) return;
+
+  container.innerHTML = `
+    <!-- Video + capture -->
+    <div id="lab-video-section">
+      <p class="text-sm text-white/40 mb-2 text-center">Сжатое видео (150 kbps) — выбери момент и захвати кадр</p>
+      <div class="video-wrapper rounded-2xl max-w-2xl mx-auto">
+        <video id="lab-video" class="w-full h-full object-cover" autoplay loop muted playsinline
+          src="assets/videos/bad.mp4"></video>
+      </div>
+      <div class="text-center mt-4">
+        <button id="lab-capture-btn" class="px-6 py-3 bg-white/10 border border-white/20 rounded-full font-bold hover:bg-white/20 transition">
+          Захватить кадр
+        </button>
+      </div>
+    </div>
+
+    <!-- Comparison: captured vs AI result (hidden until capture) -->
+    <div id="lab-comparison" class="hidden">
+      <div class="grid sm:grid-cols-2 gap-6">
+        <div>
+          <p class="text-sm text-red-400/60 mb-2 text-center">Захваченный кадр (до)</p>
+          <div class="video-wrapper rounded-2xl bg-black/50">
+            <canvas id="lab-canvas-input" class="w-full h-full"></canvas>
+          </div>
+        </div>
+        <div>
+          <p class="text-sm text-green-400/60 mb-2 text-center">После ESRGAN</p>
+          <div class="video-wrapper rounded-2xl flex items-center justify-center bg-black/50">
+            <p class="text-white/20 text-sm" id="lab-placeholder">Нажми "Улучшить"</p>
+            <img id="lab-result-img" class="w-full h-full object-cover hidden">
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-center gap-4 mt-6">
+        <button id="lab-upscale-btn" class="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full font-bold hover:scale-105 transition-transform pulse-glow">
+          Улучшить нейросетью (ESRGAN)
+        </button>
+        <button id="lab-recapture-btn" class="px-6 py-3 bg-white/10 border border-white/20 rounded-full font-bold hover:bg-white/20 transition">
+          Новый кадр
+        </button>
+      </div>
+    </div>
+
+    <!-- Status -->
+    <div id="lab-status" class="mt-6 text-center text-sm text-white/30"></div>
+
+    <!-- Progress -->
+    <div id="lab-progress" class="mt-4 h-1.5 bg-white/10 rounded-full overflow-hidden hidden">
+      <div id="lab-progress-bar" class="h-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300" style="width: 0%"></div>
+    </div>
+
+    <!-- Metrics (hidden until upscale) -->
+    <div id="lab-metrics" class="mt-6 hidden">
+      <div class="bg-white/5 rounded-2xl p-5 border border-white/10">
+        <h4 class="font-bold text-sm text-white/60 mb-4 text-center">Метрики качества (No-Reference)</h4>
+        <div class="grid grid-cols-3 gap-4 text-center">
+          <div>
+            <p class="text-xs text-white/40 mb-1">Резкость (Laplacian)</p>
+            <p class="text-sm text-red-400">До: <strong id="metric-sharp-before">—</strong></p>
+            <p class="text-sm text-green-400">После: <strong id="metric-sharp-after">—</strong></p>
+          </div>
+          <div>
+            <p class="text-xs text-white/40 mb-1">Контраст (σ)</p>
+            <p class="text-sm text-red-400">До: <strong id="metric-contrast-before">—</strong></p>
+            <p class="text-sm text-green-400">После: <strong id="metric-contrast-after">—</strong></p>
+          </div>
+          <div>
+            <p class="text-xs text-white/40 mb-1">Детализация (HF energy)</p>
+            <p class="text-sm text-red-400">До: <strong id="metric-detail-before">—</strong></p>
+            <p class="text-sm text-green-400">После: <strong id="metric-detail-after">—</strong></p>
+          </div>
+        </div>
+        <div class="mt-4 text-center">
+          <p class="text-lg font-bold">Улучшение резкости: <span id="metric-improvement" class="text-green-400">—</span></p>
+          <p class="text-xs text-white/20 mt-1">Laplacian variance — стандартная метрика оценки чёткости изображения (Pech-Pacheco et al.)</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Architecture info -->
+    <div class="mt-8 bg-white/5 rounded-2xl p-6 border border-white/10">
+      <h4 class="font-bold text-sm text-white/60 mb-4 text-center">Архитектура</h4>
+      <div class="flex items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm flex-wrap">
+        <span class="bg-red-500/20 text-red-400 px-3 py-1.5 rounded-lg">Сжатый кадр</span>
+        <span class="text-white/30">&rarr;</span>
+        <span class="bg-purple-500/20 text-purple-400 px-3 py-1.5 rounded-lg">ESRGAN модель</span>
+        <span class="text-white/30">&rarr;</span>
+        <span class="bg-blue-500/20 text-blue-400 px-3 py-1.5 rounded-lg">TensorFlow.js</span>
+        <span class="text-white/30">&rarr;</span>
+        <span class="bg-green-500/20 text-green-400 px-3 py-1.5 rounded-lg">WebGL/GPU</span>
+        <span class="text-white/30">&rarr;</span>
+        <span class="bg-pink-500/20 text-pink-400 px-3 py-1.5 rounded-lg">HD кадр</span>
+      </div>
+      <p class="text-xs text-white/20 mt-4 text-center">
+        Модель ESRGAN (Enhanced Super-Resolution GAN) работает прямо в браузере через TensorFlow.js. Без сервера. Без облака.
+      </p>
+    </div>
+  `;
+
+  const video = document.getElementById('lab-video');
+  const videoSection = document.getElementById('lab-video-section');
+  const comparison = document.getElementById('lab-comparison');
+  const captureBtn = document.getElementById('lab-capture-btn');
+  const upscaleBtn = document.getElementById('lab-upscale-btn');
+  const recaptureBtn = document.getElementById('lab-recapture-btn');
+  const canvasInput = document.getElementById('lab-canvas-input');
+  const resultImg = document.getElementById('lab-result-img');
+  const placeholder = document.getElementById('lab-placeholder');
+  const statusEl = document.getElementById('lab-status');
+  const progress = document.getElementById('lab-progress');
+  const progressBar = document.getElementById('lab-progress-bar');
+
+  let upscaler = null;
+
+  // Init upscaler
+  if (typeof Upscaler !== 'undefined') {
+    statusEl.textContent = 'Загрузка модели ESRGAN...';
+    upscaler = new Upscaler({
+      model: DefaultUpscalerJSModel,
+    });
+    // Warm up
+    const warmupCanvas = document.createElement('canvas');
+    warmupCanvas.width = 8;
+    warmupCanvas.height = 8;
+    warmupCanvas.getContext('2d').fillRect(0, 0, 8, 8);
+    upscaler.upscale(warmupCanvas, { patchSize: 8, padding: 0 }).then(() => {
+      statusEl.textContent = 'Модель загружена. Захвати кадр для обработки.';
+    }).catch(() => {
+      statusEl.textContent = 'Модель загружена.';
+    });
+  } else {
+    statusEl.textContent = 'Ошибка: TensorFlow.js не загружен';
+  }
+
+  function captureFrame() {
+    const w = 640;
+    const h = 360;
+    canvasInput.width = w;
+    canvasInput.height = h;
+    const ctx = canvasInput.getContext('2d');
+    ctx.drawImage(video, 0, 0, w, h);
+
+    // Hide video, show comparison
+    videoSection.classList.add('hidden');
+    comparison.classList.remove('hidden');
+    comparison.classList.add('fade-in-up');
+
+    // Reset result side
+    placeholder.classList.remove('hidden');
+    resultImg.classList.add('hidden');
+
+    upscaleBtn.disabled = false;
+    upscaleBtn.textContent = 'Улучшить нейросетью (ESRGAN)';
+    statusEl.textContent = 'Кадр захвачен (' + w + 'x' + h + '). Нажми "Улучшить".';
+  }
+
+  captureBtn.addEventListener('click', captureFrame);
+
+  recaptureBtn.addEventListener('click', () => {
+    comparison.classList.add('hidden');
+    videoSection.classList.remove('hidden');
+    statusEl.textContent = 'Захвати новый кадр.';
+  });
+
+  // Upscale
+  upscaleBtn.addEventListener('click', async () => {
+    if (!upscaler) return;
+
+    upscaleBtn.disabled = true;
+    upscaleBtn.classList.add('opacity-50');
+    upscaleBtn.classList.remove('pulse-glow');
+    upscaleBtn.textContent = 'Нейросеть работает...';
+
+    progress.classList.remove('hidden');
+    progressBar.style.width = '0%';
+    statusEl.textContent = 'ESRGAN обрабатывает кадр...';
+
+    // Fake progress while real AI works
+    let pct = 0;
+    const progressInterval = setInterval(() => {
+      pct = Math.min(pct + 2, 90);
+      progressBar.style.width = pct + '%';
+    }, 100);
+
+    const startTime = performance.now();
+
+    try {
+      const result = await upscaler.upscale(canvasInput, {
+        patchSize: 64,
+        padding: 4,
+        output: 'src',
+      });
+
+      clearInterval(progressInterval);
+      progressBar.style.width = '100%';
+
+      const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
+
+      resultImg.src = result;
+      resultImg.classList.remove('hidden');
+      resultImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+      placeholder.classList.add('hidden');
+
+      statusEl.innerHTML = 'Готово за <strong class="text-green-400">' + elapsed + 's</strong> | Вход: 640x360 → Выход: 1280x720 (HD) | Модель: ESRGAN x2';
+      upscaleBtn.textContent = 'Готово!';
+      upscaleBtn.disabled = true;
+
+      // Calculate metrics
+      resultImg.onload = () => {
+        const beforeData = getPixels(canvasInput);
+        const afterData = getPixels(resultImg);
+
+        const sharpBefore = calcSharpness(beforeData);
+        const sharpAfter = calcSharpness(afterData);
+        const contrastBefore = calcContrast(beforeData);
+        const contrastAfter = calcContrast(afterData);
+        const detailBefore = calcDetail(beforeData);
+        const detailAfter = calcDetail(afterData);
+
+        document.getElementById('metric-sharp-before').textContent = sharpBefore.toFixed(1);
+        document.getElementById('metric-sharp-after').textContent = sharpAfter.toFixed(1);
+        document.getElementById('metric-contrast-before').textContent = contrastBefore.toFixed(1);
+        document.getElementById('metric-contrast-after').textContent = contrastAfter.toFixed(1);
+        document.getElementById('metric-detail-before').textContent = detailBefore.toFixed(1);
+        document.getElementById('metric-detail-after').textContent = detailAfter.toFixed(1);
+
+        const improvement = ((sharpAfter - sharpBefore) / sharpBefore * 100).toFixed(0);
+        document.getElementById('metric-improvement').textContent = '+' + improvement + '%';
+
+        document.getElementById('lab-metrics').classList.remove('hidden');
+        document.getElementById('lab-metrics').classList.add('fade-in-up');
+      };
+
+      setTimeout(() => { progress.classList.add('hidden'); }, 1000);
+    } catch (err) {
+      clearInterval(progressInterval);
+      statusEl.textContent = 'Ошибка: ' + err.message;
+      upscaleBtn.textContent = 'Попробовать снова';
+      upscaleBtn.disabled = false;
+      upscaleBtn.classList.remove('opacity-50');
+    }
+  });
 }

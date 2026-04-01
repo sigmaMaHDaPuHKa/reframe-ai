@@ -22,6 +22,7 @@
         <a href="#restore" class="hover:text-white transition">Магия</a>
         <a href="#slider" class="hover:text-white transition">Слайдер</a>
         <a href="#how" class="hover:text-white transition">Как это работает</a>
+        <a href="#ai-lab" class="hover:text-white transition">AI Lab</a>
       </div>
       <!-- Mobile menu button -->
       <button id="mobile-menu-btn" class="sm:hidden text-white/60 hover:text-white">
@@ -36,6 +37,7 @@
       <a href="#restore" class="block py-2 text-white/60 hover:text-white transition">Магия</a>
       <a href="#slider" class="block py-2 text-white/60 hover:text-white transition">Слайдер</a>
       <a href="#how" class="block py-2 text-white/60 hover:text-white transition">Как это работает</a>
+      <a href="#ai-lab" class="block py-2 text-white/60 hover:text-white transition">AI Lab</a>
     </div>
   </nav>
 
@@ -135,11 +137,28 @@
     </div>
   </section>
 
+  <!-- SCREEN 5: AI LAB -->
+  <section id="ai-lab" class="min-h-screen flex flex-col items-center justify-center px-4 py-20 bg-gradient-to-b from-black via-purple-950/20 to-black">
+    <h2 class="text-3xl sm:text-5xl font-black text-center mb-4">
+      AI <span class="text-purple-400">Лаборатория</span>
+    </h2>
+    <p class="text-white/50 text-center mb-12 max-w-lg">
+      Настоящая нейросеть ESRGAN работает прямо в твоём браузере. Захвати кадр из сжатого видео и улучши его.
+    </p>
+    <div id="ai-lab-container" class="w-full max-w-4xl">
+      <!-- AI Lab content will be injected by JS -->
+    </div>
+  </section>
+
   <!-- FOOTER -->
   <footer class="border-t border-white/10 py-8 text-center text-white/30 text-sm">
     <p><span class="text-purple-400 font-bold">ReframeAI</span> — конкурсный проект, 2026</p>
   </footer>
 
+  <!-- TensorFlow.js + UpscalerJS -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@upscalerjs/default-model@latest/dist/umd/index.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/upscaler@latest/dist/browser/umd/upscaler.min.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
