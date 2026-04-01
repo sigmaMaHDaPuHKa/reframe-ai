@@ -77,41 +77,28 @@ function initGame() {
     <div class="grid sm:grid-cols-2 gap-6">
       <div class="game-card rounded-2xl overflow-hidden" data-choice="A">
         <div class="video-wrapper">
-          <canvas id="game-canvas-a" class="w-full h-full"></canvas>
+          <video id="game-video-a" class="w-full h-full object-cover" autoplay loop muted playsinline
+            src="assets/videos/${aiIsLeft ? 'ai' : 'normal'}.mp4"></video>
         </div>
         <div class="p-4 bg-white/5 text-center">
           <span class="text-lg font-bold">Видео A</span>
-          <span class="text-white/30 text-xs block">5 сек, HEVC</span>
+          <span class="text-white/30 text-xs block">8 сек, HEVC</span>
         </div>
       </div>
       <div class="game-card rounded-2xl overflow-hidden" data-choice="B">
         <div class="video-wrapper">
-          <canvas id="game-canvas-b" class="w-full h-full"></canvas>
+          <video id="game-video-b" class="w-full h-full object-cover" autoplay loop muted playsinline
+            src="assets/videos/${aiIsLeft ? 'normal' : 'ai'}.mp4"></video>
         </div>
         <div class="p-4 bg-white/5 text-center">
           <span class="text-lg font-bold">Видео B</span>
-          <span class="text-white/30 text-xs block">5 сек, HEVC</span>
+          <span class="text-white/30 text-xs block">8 сек, HEVC</span>
         </div>
       </div>
     </div>
     <p class="text-center text-white/40 mt-6 text-sm">Какое видео выглядит лучше? Нажми на него.</p>
     <div id="game-result" class="mt-8 text-center hidden"></div>
   `;
-
-  const canvasA = document.getElementById('game-canvas-a');
-  const canvasB = document.getElementById('game-canvas-b');
-
-  const demoA = new DemoVideo(canvasA, {
-    quality: aiIsLeft ? 0.95 : 0.35,
-    speed: 1
-  });
-  const demoB = new DemoVideo(canvasB, {
-    quality: aiIsLeft ? 0.35 : 0.95,
-    speed: 1
-  });
-
-  demoA.start();
-  demoB.start();
 
   const cards = container.querySelectorAll('.game-card');
   const aiChoice = aiIsLeft ? 'A' : 'B';
@@ -187,7 +174,10 @@ function initRestore() {
   container.innerHTML = `
     <div class="relative">
       <div class="video-wrapper" id="restore-video-wrapper">
-        <canvas id="restore-canvas" class="w-full h-full"></canvas>
+        <video id="restore-video-bad" class="w-full h-full object-cover" autoplay loop muted playsinline
+          src="assets/videos/bad.mp4"></video>
+        <video id="restore-video-good" class="w-full h-full object-cover absolute inset-0" autoplay loop muted playsinline
+          src="assets/videos/ai.mp4" style="opacity: 0; transition: opacity 0.5s;"></video>
 
         <!-- Live stats overlay -->
         <div id="restore-live-stats" class="absolute top-4 left-4 right-4 flex justify-between pointer-events-none">
@@ -224,9 +214,8 @@ function initRestore() {
     </div>
   `;
 
-  const canvas = document.getElementById('restore-canvas');
-  const demo = new DemoVideo(canvas, { quality: 0.05, speed: 1 });
-  demo.start();
+  const videoBad = document.getElementById('restore-video-bad');
+  const videoGood = document.getElementById('restore-video-good');
 
   const btn = document.getElementById('restore-btn');
   const progress = document.getElementById('restore-progress');
@@ -245,7 +234,6 @@ function initRestore() {
     status.textContent = 'Анализ артефактов сжатия...';
     progress.classList.remove('hidden');
 
-    let currentQuality = 0.05;
     let elapsed = 0;
     const totalDuration = 3000;
     const intervalMs = 50;
@@ -253,8 +241,9 @@ function initRestore() {
     const improveInterval = setInterval(() => {
       elapsed += intervalMs;
       const pct = Math.min(elapsed / totalDuration, 1);
-      currentQuality = 0.05 + pct * 0.95;
-      demo.setQuality(currentQuality);
+
+      // Crossfade from bad to good video
+      videoGood.style.opacity = pct;
 
       // Update progress bar
       progressBar.style.width = (pct * 100) + '%';
@@ -282,7 +271,7 @@ function initRestore() {
 
       if (pct >= 1) {
         clearInterval(improveInterval);
-        demo.setQuality(1);
+        videoGood.style.opacity = 1;
         vmafEl.textContent = '94.7';
         bitrateEl.textContent = '3000 kbps (visual)';
         progress.classList.add('hidden');
@@ -356,9 +345,11 @@ function initSlider() {
       <span id="label-ai" class="text-purple-400 font-semibold opacity-50">С AI</span>
     </div>
 
-    <!-- Canvas video -->
+    <!-- Video -->
     <div class="video-wrapper rounded-2xl relative">
-      <canvas id="slider-canvas" class="w-full h-full"></canvas>
+      <video id="slider-video-bad" class="w-full h-full object-cover absolute inset-0" autoplay loop muted playsinline src="assets/videos/bad.mp4"></video>
+      <video id="slider-video-normal" class="w-full h-full object-cover absolute inset-0" autoplay loop muted playsinline src="assets/videos/normal.mp4" style="opacity:0;transition:opacity 0.4s;"></video>
+      <video id="slider-video-good" class="w-full h-full object-cover absolute inset-0" autoplay loop muted playsinline src="assets/videos/good.mp4" style="opacity:0;transition:opacity 0.4s;"></video>
 
       <!-- Quality overlay -->
       <div class="absolute bottom-4 left-4 right-4 flex justify-between gap-2">
@@ -438,9 +429,9 @@ function initSlider() {
     </div>
   `;
 
-  const canvas = document.getElementById('slider-canvas');
-  const demo = new DemoVideo(canvas, { quality: 0.05, speed: 1 });
-  demo.start();
+  const vidBad = document.getElementById('slider-video-bad');
+  const vidNormal = document.getElementById('slider-video-normal');
+  const vidGood = document.getElementById('slider-video-good');
 
   const slider = document.getElementById('bitrate-range');
   const toggle = document.getElementById('ai-toggle');
@@ -495,7 +486,14 @@ function initSlider() {
     const size = aiEnabled ? step.sizeAI : step.sizeNormal;
     const visualQ = aiEnabled ? step.qAI : step.qNorm;
 
-    demo.setQuality(visualQ);
+    // Switch visible video based on quality level
+    if (visualQ >= 0.85) {
+      vidBad.style.opacity = 0; vidNormal.style.opacity = 0; vidGood.style.opacity = 1;
+    } else if (visualQ >= 0.35) {
+      vidBad.style.opacity = 0; vidNormal.style.opacity = 1; vidGood.style.opacity = 0;
+    } else {
+      vidBad.style.opacity = 1; vidNormal.style.opacity = 0; vidGood.style.opacity = 0;
+    }
 
     displayBitrate.textContent = step.bitrate + ' kbps';
     displaySize.textContent = size + ' MB';
