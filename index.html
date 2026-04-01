@@ -86,15 +86,15 @@
     <div class="max-w-2xl w-full grid sm:grid-cols-3 gap-3 mb-10 text-xs">
       <div class="bg-surface border border-border rounded-lg p-3">
         <p class="text-accent font-bold mb-1">Проблема</p>
-        <p class="text-muted">HEVC при 300 kbps даёт артефакты: блочность, размытие, banding. VMAF падает до 45.</p>
+        <p class="text-muted">Агрессивное квантование HEVC (H.265) при низком битрейте вызывает деградацию: макроблочность, потерю высокочастотных компонент, color banding. Метрика VMAF снижается до 45.</p>
       </div>
       <div class="bg-surface border border-border rounded-lg p-3">
         <p class="text-amber font-bold mb-1">Решение</p>
-        <p class="text-muted">ESRGAN (GAN-архитектура) восстанавливает высокочастотные детали покадрово прямо в браузере.</p>
+        <p class="text-muted">Post-processing нейросетью ESRGAN (Residual-in-Residual Dense Block) восстанавливает текстуры и границы объектов. Inference выполняется покадрово на стороне клиента через TensorFlow.js.</p>
       </div>
       <div class="bg-surface border border-border rounded-lg p-3">
         <p class="text-green font-bold mb-1">Результат</p>
-        <p class="text-muted">Файл 2.1 MB вместо 12.4 MB. Визуальное качество на уровне оригинала. VMAF 94+.</p>
+        <p class="text-muted">Битрейт передачи снижен в 6x (12.4 MB → 2.1 MB), при этом субъективное качество восстановлено до уровня референса. VMAF > 94.</p>
       </div>
     </div>
 
