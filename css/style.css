@@ -171,3 +171,17 @@ section.visible { opacity: 1; transform: translateY(0); }
     border-color: #58a6ff;
   }
 }
+
+@media (max-width: 640px) {
+  /* Bigger touch targets */
+  button, .game-card { min-height: 44px; }
+
+  /* Slider and compare adjustments */
+
+  /* Readable text on small screens */
+  .pn .t { font-size: 14pt; }
+  .pn .d { font-size: 11pt; }
+
+  /* Compare slider labels */
+  .video-wrapper { border-radius: 6px; }
+}

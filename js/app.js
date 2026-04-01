@@ -95,7 +95,7 @@ function initGame() {
         <span>score: ${score}/${round}</span>
       </div>
       <p class="text-center text-muted text-xs mb-4">${pair.name} — где HEVC + AI? Нажми на видео.</p>
-      <div class="grid grid-cols-2 gap-4">
+      <div class="grid grid-cols-2 gap-2 sm:gap-4">
         <div class="game-card overflow-hidden cursor-pointer" data-side="left">
           <div class="video-wrapper rounded-lg">
             <video class="w-full h-full object-cover" autoplay loop muted playsinline
@@ -332,7 +332,7 @@ function initRestore() {
       <!-- Real AI result comparison -->
       <div id="restore-ai-compare" class="mt-6 hidden">
         <p class="text-sm text-muted mb-3 text-center">Реальная обработка нейросетью (ESRGAN) одного кадра:</p>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           <div class="text-center">
             <p class="text-xs text-red-400/60 mb-1">До (150 kbps)</p>
             <canvas id="restore-frame-before" class="w-full rounded-xl border border-red/30"></canvas>
@@ -647,7 +647,7 @@ function initSlider() {
     <!-- Quality panel -->
     <div class="bg-surface rounded-xl p-5 border border-border">
       <!-- VMAF scale reference -->
-      <div class="grid grid-cols-4 gap-2 mb-4" id="vmaf-scale">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4" id="vmaf-scale">
         <div class="vmaf-zone rounded-lg p-2 text-center border-2 border-transparent transition-all duration-300" data-min="0" data-max="40">
           <p class="text-lg font-bold text-red">0-40</p>
           <p class="text-[10px] text-muted">Непригодно</p>
@@ -678,7 +678,7 @@ function initSlider() {
       <h4 class="text-sm font-bold text-muted mb-4 text-center">Экономия для стриминговой платформы</h4>
 
       <!-- Viewers selector -->
-      <div class="flex items-center justify-center gap-3 mb-4">
+      <div class="flex items-center justify-center gap-2 sm:gap-3 mb-4 flex-wrap">
         <span class="text-xs text-muted">Зрители:</span>
         <button class="viewer-btn px-3 py-1 rounded-full text-xs border border-accent text-accent font-bold" data-viewers="10000">10K</button>
         <button class="viewer-btn px-3 py-1 rounded-full text-xs border border-border text-muted hover:border-accent/60 hover:text-accent transition" data-viewers="100000">100K</button>
@@ -686,7 +686,7 @@ function initSlider() {
         <button class="viewer-btn px-3 py-1 rounded-full text-xs border border-border text-muted hover:border-accent/60 hover:text-accent transition" data-viewers="10000000">10M</button>
       </div>
 
-      <div class="grid grid-cols-3 gap-3 text-center">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 text-center">
         <div class="bg-surface rounded-xl p-3">
           <p class="text-xs text-muted">CDN без AI</p>
           <p id="cost-normal" class="text-xl font-black text-red-400">8 100 ₽</p>
@@ -712,7 +712,7 @@ function initSlider() {
         Обработать текущий кадр нейросетью
       </button>
       <div id="slider-ai-compare" class="mt-4 hidden">
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           <div class="text-center">
             <p class="text-xs text-red-400/60 mb-1">Текущий кадр</p>
             <canvas id="slider-frame-before" class="w-full rounded-xl border border-red/30"></canvas>
@@ -1136,7 +1136,7 @@ function initAILab() {
           </div>
         </div>
       </div>
-      <div class="flex justify-center gap-4 mt-6">
+      <div class="flex flex-wrap justify-center gap-3 sm:gap-4 mt-6">
         <button id="lab-upscale-btn" class="px-6 py-3 bg-accent/10 border border-accent/30 text-accent hover:bg-accent/20 rounded-full font-bold hover:scale-105 transition-transform pulse-glow">
           Улучшить нейросетью (ESRGAN)
         </button>
@@ -1316,14 +1316,14 @@ function initAILab() {
     <!-- Fullscreen comparison overlay -->
     <div id="lab-lightbox" class="fixed inset-0 z-[100] bg-bg/98 flex items-center justify-center cursor-pointer" style="display:none;">
       <div class="absolute top-4 right-4 text-muted text-xs z-10">esc / click to close</div>
-      <div class="grid grid-cols-2 gap-6 max-w-[90vw]">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-[95vw] sm:max-w-[90vw] max-h-[90vh] overflow-auto">
         <div class="text-center">
           <p class="text-red-400 font-bold mb-3 text-base" id="lightbox-label-before">До</p>
-          <canvas id="lab-lightbox-canvas" class="rounded-xl border-2 border-red/40" style="width:42vw;height:auto;"></canvas>
+          <canvas id="lab-lightbox-canvas" class="rounded-xl border-2 border-red/40 w-full sm:w-[42vw]" style="height:auto;"></canvas>
         </div>
         <div class="text-center">
           <p class="text-green-400 font-bold mb-3 text-base" id="lightbox-label-after">После ESRGAN</p>
-          <canvas id="lab-lightbox-canvas-after" class="rounded-xl border-2 border-green/40" style="width:42vw;height:auto;"></canvas>
+          <canvas id="lab-lightbox-canvas-after" class="rounded-xl border-2 border-green/40 w-full sm:w-[42vw]" style="height:auto;"></canvas>
         </div>
       </div>
     </div>
