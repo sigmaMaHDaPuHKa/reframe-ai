@@ -829,12 +829,13 @@ function initSlider() {
     vmafZones.forEach(zone => {
       const min = parseInt(zone.dataset.min);
       const max = parseInt(zone.dataset.max);
-      const active = quality >= min && quality < max;
+      const active = (max === 100) ? (quality >= min && quality <= max) : (quality >= min && quality < max);
       const color = zoneColors[min];
       zone.style.opacity = '1';
       zone.style.transform = active ? 'scale(1.06)' : 'scale(1)';
-      zone.style.borderColor = active ? color : 'transparent';
+      zone.style.setProperty('border-color', active ? color : 'transparent', 'important');
       zone.style.boxShadow = active ? '0 0 24px ' + color + '33' : 'none';
+      zone.style.background = active ? color + '11' : '';
     });
 
     // Money calculation
