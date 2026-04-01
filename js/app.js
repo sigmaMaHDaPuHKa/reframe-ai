@@ -76,7 +76,7 @@ function initGame() {
   container.innerHTML = `
     <div class="grid sm:grid-cols-2 gap-6">
       <div class="game-card rounded-2xl overflow-hidden" data-choice="A">
-        <div class="video-wrapper">
+        <div class="video-wrapper" style="aspect-ratio:4/3;">
           <video id="game-video-a" class="w-full h-full object-cover" autoplay loop muted playsinline
             src="assets/videos/${aiIsLeft ? 'ai' : 'normal'}.mp4"></video>
         </div>
@@ -86,7 +86,7 @@ function initGame() {
         </div>
       </div>
       <div class="game-card rounded-2xl overflow-hidden" data-choice="B">
-        <div class="video-wrapper">
+        <div class="video-wrapper" style="aspect-ratio:4/3;">
           <video id="game-video-b" class="w-full h-full object-cover" autoplay loop muted playsinline
             src="assets/videos/${aiIsLeft ? 'normal' : 'ai'}.mp4"></video>
         </div>
@@ -129,11 +129,13 @@ function initGame() {
             <p class="text-sm text-white/40">Обычный HEVC</p>
             <p class="text-2xl font-bold text-red-400">12.4 MB</p>
             <p class="text-xs text-white/30">1500 kbps, VMAF 72</p>
+            <p class="text-xs text-white/20 mt-1">CDN: ~225 ₽/час на 10K</p>
           </div>
           <div class="bg-black/30 rounded-xl p-4">
             <p class="text-sm text-white/40">AI + HEVC</p>
             <p class="text-2xl font-bold text-green-400">2.1 MB</p>
             <p class="text-xs text-green-400/60">300 kbps, VMAF 89</p>
+            <p class="text-xs text-green-400/40 mt-1">CDN: ~45 ₽/час на 10K</p>
           </div>
         </div>
         <div class="mt-4 bg-white/5 rounded-xl p-4 text-left">
@@ -296,12 +298,12 @@ function initRestore() {
                 <p class="text-xs text-white/40 mt-1">С AI (GB/час)</p>
               </div>
               <div>
-                <p class="text-3xl font-black text-purple-400" id="save-money">$0</p>
+                <p class="text-3xl font-black text-purple-400" id="save-money">0 ₽</p>
                 <p class="text-xs text-white/40 mt-1">Экономия/мес*</p>
               </div>
             </div>
             <p class="text-xs text-white/20 mt-4 text-center">
-              *При 100K зрителей, CDN $0.02/GB (Netflix данные, 2025)
+              *При 10K зрителей, CDN 3 ₽/GB (Selectel/VK Cloud, 2025)
             </p>
           </div>
         `;
@@ -310,7 +312,7 @@ function initRestore() {
         setTimeout(() => {
           animateValue(document.getElementById('save-before'), 0, 6.75, 1200, ' GB');
           animateValue(document.getElementById('save-after'), 0, 0.68, 1200, ' GB');
-          animateValue(document.getElementById('save-money'), 0, 12140, 1500, '', '$');
+          animateValue(document.getElementById('save-money'), 0, 182200, 1500, ' ₽');
         }, 200);
       }
     }, intervalMs);
@@ -402,8 +404,8 @@ function initSlider() {
       <!-- Viewers selector -->
       <div class="flex items-center justify-center gap-3 mb-4">
         <span class="text-xs text-white/40">Зрители:</span>
-        <button class="viewer-btn px-3 py-1 rounded-full text-xs border border-white/20 text-white/50 hover:border-purple-400 hover:text-purple-400 transition" data-viewers="1000">1K</button>
-        <button class="viewer-btn px-3 py-1 rounded-full text-xs border border-purple-400 text-purple-400 font-bold" data-viewers="100000">100K</button>
+        <button class="viewer-btn px-3 py-1 rounded-full text-xs border border-purple-400 text-purple-400 font-bold" data-viewers="10000">10K</button>
+        <button class="viewer-btn px-3 py-1 rounded-full text-xs border border-white/20 text-white/50 hover:border-purple-400 hover:text-purple-400 transition" data-viewers="100000">100K</button>
         <button class="viewer-btn px-3 py-1 rounded-full text-xs border border-white/20 text-white/50 hover:border-purple-400 hover:text-purple-400 transition" data-viewers="1000000">1M</button>
         <button class="viewer-btn px-3 py-1 rounded-full text-xs border border-white/20 text-white/50 hover:border-purple-400 hover:text-purple-400 transition" data-viewers="10000000">10M</button>
       </div>
@@ -411,21 +413,21 @@ function initSlider() {
       <div class="grid grid-cols-3 gap-3 text-center">
         <div class="bg-black/30 rounded-xl p-3">
           <p class="text-xs text-white/40">CDN без AI</p>
-          <p id="cost-normal" class="text-xl font-black text-red-400">$108</p>
+          <p id="cost-normal" class="text-xl font-black text-red-400">8 100 ₽</p>
           <p class="text-xs text-white/20">/месяц</p>
         </div>
         <div class="bg-black/30 rounded-xl p-3">
           <p class="text-xs text-white/40">CDN с AI</p>
-          <p id="cost-ai" class="text-xl font-black text-green-400">$25</p>
+          <p id="cost-ai" class="text-xl font-black text-green-400">1 900 ₽</p>
           <p class="text-xs text-white/20">/месяц</p>
         </div>
         <div class="bg-black/30 rounded-xl p-3 border border-purple-500/30">
           <p class="text-xs text-white/40">Экономия</p>
-          <p id="cost-savings" class="text-xl font-black text-purple-400">$83</p>
+          <p id="cost-savings" class="text-xl font-black text-purple-400">6 200 ₽</p>
           <p class="text-xs text-purple-400/60">/месяц</p>
         </div>
       </div>
-      <p class="text-xs text-white/15 mt-3 text-center">CDN $0.02/GB, 1 час просмотра/зритель/день. Данные: Netflix, SimaBit 2025</p>
+      <p class="text-xs text-white/15 mt-3 text-center">CDN 3 ₽/GB, 1 час просмотра/зритель/день. Данные: Selectel, SimaBit 2025</p>
     </div>
   `;
 
@@ -448,8 +450,8 @@ function initSlider() {
   const costSavings = document.getElementById('cost-savings');
 
   let aiEnabled = false;
-  let viewers = 100000;
-  const CDN_COST = 0.02; // $/GB
+  let viewers = 10000;
+  const CDN_COST = 3.0; // ₽/GB (Selectel/VK Cloud)
 
   // Viewer buttons
   container.querySelectorAll('.viewer-btn').forEach(btn => {
@@ -474,9 +476,9 @@ function initSlider() {
   slider.addEventListener('input', updateSlider);
 
   function formatMoney(n) {
-    if (n >= 1000000) return '$' + (n / 1000000).toFixed(1) + 'M';
-    if (n >= 1000) return '$' + (n / 1000).toFixed(1) + 'K';
-    return '$' + Math.floor(n);
+    if (n >= 1000000) return (n / 1000000).toFixed(1) + ' млн ₽';
+    if (n >= 1000) return Math.floor(n / 1000) + ' тыс ₽';
+    return Math.floor(n) + ' ₽';
   }
 
   function updateSlider() {
@@ -564,7 +566,7 @@ function initCalculator() {
         <!-- Input: Viewers -->
         <div class="bg-white/5 rounded-2xl p-5 border border-white/10">
           <label class="text-sm text-white/40 block mb-2">Средний просмотр одного видео</label>
-          <input id="calc-views" type="number" value="10000" min="1" max="100000000"
+          <input id="calc-views" type="number" value="1000" min="1" max="100000000"
             class="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-3 text-2xl font-bold text-white focus:border-purple-400 focus:outline-none transition">
           <p class="text-xs text-white/20 mt-2">просмотров</p>
         </div>
@@ -586,19 +588,19 @@ function initCalculator() {
           <div>
             <p class="text-xs text-white/40 mb-1">Стоимость без AI</p>
             <p id="calc-cost-normal" class="text-2xl font-black text-red-400">--</p>
-            <p class="text-xs text-white/20">$/мес</p>
+            <p class="text-xs text-white/20">₽/мес</p>
           </div>
           <div class="border border-purple-500/30 rounded-xl p-2 -m-2">
             <p class="text-xs text-purple-400 mb-1 font-bold">Экономия с AI</p>
             <p id="calc-savings" class="text-2xl font-black text-purple-400">--</p>
-            <p class="text-xs text-purple-400/60">$/мес</p>
+            <p class="text-xs text-purple-400/60">₽/мес</p>
           </div>
         </div>
 
         <div class="mt-6 text-center">
           <p class="text-sm text-white/50">За год это</p>
           <p id="calc-yearly" class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">--</p>
-          <p class="text-xs text-white/20 mt-2">Средний битрейт 2000 kbps, CDN $0.02/GB, AI-сжатие -24% (SimaBit, 2025)</p>
+          <p class="text-xs text-white/20 mt-2">Средний битрейт 2000 kbps, CDN 3 ₽/GB, AI-сжатие -24% (SimaBit, 2025)</p>
         </div>
       </div>
     </div>
@@ -608,10 +610,10 @@ function initCalculator() {
   const viewsInput = document.getElementById('calc-views');
 
   function formatBig(n) {
-    if (n >= 1e9) return '$' + (n / 1e9).toFixed(1) + 'B';
-    if (n >= 1e6) return '$' + (n / 1e6).toFixed(1) + 'M';
-    if (n >= 1e3) return '$' + (n / 1e3).toFixed(1) + 'K';
-    return '$' + Math.floor(n);
+    if (n >= 1e9) return (n / 1e9).toFixed(1) + ' млрд ₽';
+    if (n >= 1e6) return (n / 1e6).toFixed(1) + ' млн ₽';
+    if (n >= 1e3) return Math.floor(n / 1e3) + ' тыс ₽';
+    return Math.floor(n) + ' ₽';
   }
 
   function calculate() {
@@ -624,7 +626,7 @@ function initCalculator() {
     const trafficNormal = totalViewHours * gbPerHour / 1024; // TB
     const trafficAI = trafficNormal * 0.76; // 24% reduction
 
-    const costNormal = trafficNormal * 1024 * 0.02; // $0.02/GB
+    const costNormal = trafficNormal * 1024 * 3.0; // 3 ₽/GB
     const savingsMonthly = costNormal * 0.24;
     const savingsYearly = savingsMonthly * 12;
 
