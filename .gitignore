@@ -3,3 +3,8 @@ Thumbs.db
 node_modules/
 .env
 *.log
+__pycache__/
+.claude/
+fix.txt
+*.mov
+*.pdf
